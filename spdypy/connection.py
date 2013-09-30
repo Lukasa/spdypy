@@ -5,7 +5,8 @@ spdypy.connection
 
 Contains the code necessary for working with SPDY connections.
 """
-
+# Define some states for SPDYConnections.
+NEW = 'NEW'
 
 class SPDYConnection(object):
     """
@@ -19,4 +20,4 @@ class SPDYConnection(object):
     """
     def __init__(self, host):
         self.host = host
-        self._state = None
+        self._state = NEW
