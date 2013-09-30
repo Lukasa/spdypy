@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-tests/test_connection
+test/test_connection
 ~~~~~~~~~~~~~~~~~~~~~
 
 Tests for the SPDYConnection object.

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-tests/test_api
+test/test_api
 ~~~~~~~~~
 
 Tests of the top-level SPDYPy API. These will be relatively sparse for the
