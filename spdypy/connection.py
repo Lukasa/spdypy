@@ -19,3 +19,4 @@ class SPDYConnection(object):
     """
     def __init__(self, host):
         self.host = host
+        self._state = None
