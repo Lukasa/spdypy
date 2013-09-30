@@ -18,3 +18,4 @@ class TestFrame(object):
         assert fr.type is None
         assert fr.flags == []
         assert fr.data is None
+        assert fr.stream_id is None

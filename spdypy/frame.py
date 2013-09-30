@@ -17,3 +17,4 @@ class Frame(object):
         self.type = None
         self.flags = []
         self.data = None
+        self.stream_id = None
