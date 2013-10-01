@@ -30,21 +30,21 @@ def flags(byte, frame_type=None):
     :param frame_type: The control frame type, or None if the frame is a data
                        frame.
     """
-    flags = []
+    flags = set()
 
     if frame_type in (None, SYN_REPLY, HEADERS):
         if byte & 0x01:
-            flags.append(FLAG_FIN)
+            flags.add(FLAG_FIN)
 
     elif frame_type == SYN_STREAM:
         if byte & 0x01:
-            flags.append(FLAG_FIN)
+            flags.add(FLAG_FIN)
         if byte & 0x02:
-            flags.append(FLAG_UNIDIRECTIONAL)
+            flags.add(FLAG_UNIDIRECTIONAL)
 
     elif frame_type == SETTINGS:
         if byte & 0x01:
-            flags.append(FLAG_CLEAR_SETTINGS)
+            flags.add(FLAG_CLEAR_SETTINGS)
 
     return flags
 
@@ -57,6 +57,6 @@ class Frame(object):
         self.control = None
         self.version = None
         self.type = None
-        self.flags = []
+        self.flags = set()
         self.data = None
         self.stream_id = None
