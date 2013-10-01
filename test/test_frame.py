@@ -7,6 +7,7 @@ Tests of the SPDY frame.
 from spdypy.frame import (Frame, flags, SYN_STREAM, SYN_REPLY, RST_STREAM,
                           SETTINGS, PING, GOAWAY, HEADERS, WINDOW_UPDATE,
                           FLAG_FIN, FLAG_UNIDIRECTIONAL, FLAG_CLEAR_SETTINGS)
+from pytest import raises
 
 
 class TestFrame(object):
@@ -21,6 +22,16 @@ class TestFrame(object):
         assert fr.flags == set()
         assert fr.data is None
         assert fr.stream_id is None
+
+    def test_frame_is_abc(self):
+        fr = Frame()
+
+        with raises(NotImplementedError):
+            fr.build_flags(0x00)
+
+        with raises(NotImplementedError):
+            fr.build_data('')
+
 
 class TestFlags(object):
     def test_all_flags_set(self):

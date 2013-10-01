@@ -51,7 +51,8 @@ def flags(byte, frame_type=None):
 
 class Frame(object):
     """
-    A single SPDY frame.
+    A single SPDY frame. This is effectively an abstract base class for the
+    various SPDY frame classes.
     """
     def __init__(self):
         self.control = None
@@ -60,3 +61,17 @@ class Frame(object):
         self.flags = set()
         self.data = None
         self.stream_id = None
+
+    def build_flags(self, flag_byte):
+        """
+        This method should take a flag byte, and then populate the flags set
+        on the object.
+        """
+        raise NotImplementedError("This is an abstract base class.")
+
+    def build_data(self, data_buffer):
+        """
+        This method builds the relevant instance variables from the data buffer
+        that makes up the frame body.
+        """
+        raise NotImplementedError("This is an abtract base class.")
