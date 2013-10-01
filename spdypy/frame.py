@@ -94,3 +94,14 @@ class SYNStreamFrame(Frame):
             self.flags.add(FLAG_FIN)
         if flag_byte & 0x02:
             self.flags.add(FLAG_UNIDIRECTIONAL)
+
+    def build_data(self, data_buffer):
+        """
+        Build the SYN_STREAM body fields.
+        """
+        fields = struct.unpack("!LLL", data_buffer[0:12])
+        self.stream_id = fields[0] & 0x7FFFFFFF
+        self.assoc_stream_id = fields[1] & 0x7FFFFFFF
+        self.priority = (fields[2] & 0xE0000000) >> 29
+
+        self.name_value_block = data_buffer[12:]

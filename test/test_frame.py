@@ -67,3 +67,13 @@ class TestSYNStreamFrame(object):
         fr.build_flags(0)
 
         assert fr.flags == expected
+
+    def test_non_nv_block_data_good(self):
+        data = b'\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff'
+
+        fr = SYNStreamFrame()
+        fr.build_data(data)
+
+        assert fr.stream_id == 0x7FFFFFFF
+        assert fr.assoc_stream_id == 0x7FFFFFFF
+        assert fr.priority == 0x07
