@@ -5,6 +5,9 @@ spdypy.frame
 
 Defines SPDYPy's internal representation of a SPDY frame.
 """
+import struct
+
+
 # Define our control frame types.
 SYN_STREAM = 1
 SYN_REPLY = 2
@@ -75,3 +78,19 @@ class Frame(object):
         that makes up the frame body.
         """
         raise NotImplementedError("This is an abtract base class.")
+
+
+class SYNStreamFrame(Frame):
+    """
+    A single SYN_STREAM frame.
+    """
+    def build_flags(self, flag_byte):
+        """
+        Build the flags for this frame from the given byte.
+
+        :param flag_byte: The byte containing the flags.
+        """
+        if flag_byte & 0x01:
+            self.flags.add(FLAG_FIN)
+        if flag_byte & 0x02:
+            self.flags.add(FLAG_UNIDIRECTIONAL)
