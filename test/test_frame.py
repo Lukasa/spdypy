@@ -4,10 +4,10 @@ test/test_frame
 ~~~~~~~~~~~~~~~
 Tests of the SPDY frame.
 """
-from spdypy.frame import (Frame, SYNStreamFrame, flags, from_bytes, SYN_STREAM,
-                          SYN_REPLY, RST_STREAM, SETTINGS, PING, GOAWAY,
-                          HEADERS, WINDOW_UPDATE, FLAG_FIN,
-                          FLAG_UNIDIRECTIONAL, FLAG_CLEAR_SETTINGS)
+from spdypy.frame import (Frame, SYNStreamFrame, SYNReplyFrame, flags,
+                          from_bytes, SYN_STREAM, SYN_REPLY, RST_STREAM,
+                          SETTINGS, PING, GOAWAY, HEADERS, WINDOW_UPDATE,
+                          FLAG_FIN, FLAG_UNIDIRECTIONAL, FLAG_CLEAR_SETTINGS)
 from pytest import raises
 
 
@@ -65,11 +65,11 @@ class TestFromBytes(object):
         assert fr.priority == 0x07
 
 
-class TestSYNStreamFrame(object):
+class SYNStreamFrameCommon(object):
     def test_build_flags_all_flags(self):
         expected = set([FLAG_FIN, FLAG_UNIDIRECTIONAL])
 
-        fr = SYNStreamFrame()
+        fr = self.frametype()
         fr.build_flags(0xFF)
 
         assert fr.flags == expected
@@ -77,7 +77,7 @@ class TestSYNStreamFrame(object):
     def test_build_flags_no_flags(self):
         expected = set()
 
-        fr = SYNStreamFrame()
+        fr = self.frametype()
         fr.build_flags(0)
 
         assert fr.flags == expected
@@ -85,9 +85,19 @@ class TestSYNStreamFrame(object):
     def test_non_nv_block_data_good(self):
         data = b'\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff'
 
-        fr = SYNStreamFrame()
+        fr = self.frametype()
         fr.build_data(data)
 
         assert fr.stream_id == 0x7FFFFFFF
         assert fr.assoc_stream_id == 0x7FFFFFFF
         assert fr.priority == 0x07
+
+
+class TestSYNStreamFrame(SYNStreamFrameCommon):
+    def setup(self):
+        self.frametype = SYNStreamFrame
+
+
+class TestSYNReplyFrame(SYNStreamFrameCommon):
+    def setup(self):
+        self.frametype = SYNReplyFrame

@@ -156,3 +156,10 @@ class SYNStreamFrame(SYNMixin, Frame):
     A single SYN_STREAM frame.
     """
     pass
+
+
+class SYNReplyFrame(SYNMixin, Frame):
+    """
+    A single SYN_REPLY frame.
+    """
+    pass
