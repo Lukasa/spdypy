@@ -52,6 +52,48 @@ def flags(byte, frame_type=None):
     return flags
 
 
+def from_bytes(buffer):
+    """
+    Build a Frame object from the buffer. Returns the correct Frame and the
+    number of bytes consumed from the buffer.
+
+    :param buffer: The byte buffer that represents the frame.
+    """
+    control = buffer[0] & 0x80
+
+    # Build the fields from the first 4 bytes, then pass the remainder off to
+    # the relevant class.
+    if control:
+        fields = struct.unpack("!HH", buffer[0:4])
+        version = fields[0] & 0x7FFF
+        frame_type = fields[1]
+
+        if frame_type == SYN_STREAM:
+            frame = SYNStreamFrame()
+        else:
+            frame = Frame()
+
+        # Assign the fields we've already parsed.
+        frame.control = True
+        frame.version = version
+    else:
+        stream_id = struct.unpack("!L", buffer[0:4])[0] & 0x7FFFFFFF
+
+        frame = Frame()
+        frame.stream_id = stream_id
+
+    # Let the frame build its flags up.
+    frame.build_flags(buffer[4])
+
+    # Get the length.
+    length = struct.unpack("!L", buffer[4:8])[0] & 0x00FFFFFF
+
+    # Then pass the remaining data to the data builder.
+    frame.build_data(buffer[8:8 + length])
+
+    return (frame, 8 + length)
+
+
 class Frame(object):
     """
     A single SPDY frame. This is effectively an abstract base class for the

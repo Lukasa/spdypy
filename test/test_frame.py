@@ -4,10 +4,10 @@ test/test_frame
 ~~~~~~~~~~~~~~~
 Tests of the SPDY frame.
 """
-from spdypy.frame import (Frame, SYNStreamFrame, flags, SYN_STREAM, SYN_REPLY,
-                          RST_STREAM, SETTINGS, PING, GOAWAY, HEADERS,
-                          WINDOW_UPDATE, FLAG_FIN, FLAG_UNIDIRECTIONAL,
-                          FLAG_CLEAR_SETTINGS)
+from spdypy.frame import (Frame, SYNStreamFrame, flags, from_bytes, SYN_STREAM,
+                          SYN_REPLY, RST_STREAM, SETTINGS, PING, GOAWAY,
+                          HEADERS, WINDOW_UPDATE, FLAG_FIN,
+                          FLAG_UNIDIRECTIONAL, FLAG_CLEAR_SETTINGS)
 from pytest import raises
 
 
@@ -49,6 +49,20 @@ class TestFlags(object):
 
         for frame_type, result in expected.items():
             assert result == flags(0xFF, frame_type)
+
+
+class TestFromBytes(object):
+    def test_syn_stream_frame_good(self):
+        data = b'\xff\xff\x00\x01\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff'
+        fr, consumed = from_bytes(data)
+        assert consumed == 0xFFFFFF + 8
+        assert isinstance(fr, SYNStreamFrame)
+        assert fr.control
+        assert fr.version == 0x7FFF
+        assert fr.flags == set([FLAG_FIN, FLAG_UNIDIRECTIONAL])
+        assert fr.stream_id == 0x7FFFFFFF
+        assert fr.assoc_stream_id == 0x7FFFFFFF
+        assert fr.priority == 0x07
 
 
 class TestSYNStreamFrame(object):
