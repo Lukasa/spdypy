@@ -122,9 +122,11 @@ class Frame(object):
         raise NotImplementedError("This is an abtract base class.")
 
 
-class SYNStreamFrame(Frame):
+class SYNMixin(object):
     """
-    A single SYN_STREAM frame.
+    This mixin is used to generate the SYNStreamFrame and SYNReplyFrame
+    classes. These classes reflect frames that have identical structures, and
+    so will have identical implementations for a number of their methods.
     """
     def build_flags(self, flag_byte):
         """
@@ -147,3 +149,10 @@ class SYNStreamFrame(Frame):
         self.priority = (fields[2] & 0xE0000000) >> 29
 
         self.name_value_block = data_buffer[12:]
+
+
+class SYNStreamFrame(SYNMixin, Frame):
+    """
+    A single SYN_STREAM frame.
+    """
+    pass
