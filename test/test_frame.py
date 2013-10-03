@@ -5,9 +5,10 @@ test/test_frame
 Tests of the SPDY frame.
 """
 from spdypy.frame import (Frame, SYNStreamFrame, SYNReplyFrame, RSTStreamFrame,
-                          flags, from_bytes, SYN_STREAM, SYN_REPLY, RST_STREAM,
-                          SETTINGS, PING, GOAWAY, HEADERS, WINDOW_UPDATE,
-                          FLAG_FIN, FLAG_UNIDIRECTIONAL, FLAG_CLEAR_SETTINGS)
+                          SettingsFrame, flags, from_bytes, SYN_STREAM,
+                          SYN_REPLY, RST_STREAM, SETTINGS, PING, GOAWAY,
+                          HEADERS, WINDOW_UPDATE, FLAG_FIN,
+                          FLAG_UNIDIRECTIONAL, FLAG_CLEAR_SETTINGS)
 from pytest import raises
 
 
@@ -134,3 +135,21 @@ class TestRSTStreamFrame(object):
 
         with raises(RuntimeError):
             fr.build_data(data)
+
+
+class TestSettingsFrame(object):
+    def test_build_flags_all_flags(self):
+        expected = set([FLAG_CLEAR_SETTINGS])
+
+        fr = SettingsFrame()
+        fr.build_flags(0xFF)
+
+        assert fr.flags == expected
+
+    def test_build_flags_no_flags(self):
+        expected = set()
+
+        fr = SettingsFrame()
+        fr.build_flags(0x00)
+
+        assert fr.flags == expected

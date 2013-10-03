@@ -191,3 +191,15 @@ class RSTStreamFrame(Frame):
         self.status_code = fields[1]
 
         return
+
+
+class SettingsFrame(Frame):
+    """
+    A single SETTINGS frame.
+    """
+    def build_flags(self, flag_byte):
+        """
+        Build the flags for this frame from the given byte.
+        """
+        if flag_byte & 0x01:
+            self.flags.add(FLAG_CLEAR_SETTINGS)
