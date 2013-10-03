@@ -4,8 +4,8 @@ test/test_frame
 ~~~~~~~~~~~~~~~
 Tests of the SPDY frame.
 """
-from spdypy.frame import (Frame, SYNStreamFrame, SYNReplyFrame, flags,
-                          from_bytes, SYN_STREAM, SYN_REPLY, RST_STREAM,
+from spdypy.frame import (Frame, SYNStreamFrame, SYNReplyFrame, RSTStreamFrame,
+                          flags, from_bytes, SYN_STREAM, SYN_REPLY, RST_STREAM,
                           SETTINGS, PING, GOAWAY, HEADERS, WINDOW_UPDATE,
                           FLAG_FIN, FLAG_UNIDIRECTIONAL, FLAG_CLEAR_SETTINGS)
 from pytest import raises
@@ -101,3 +101,19 @@ class TestSYNStreamFrame(SYNStreamFrameCommon):
 class TestSYNReplyFrame(SYNStreamFrameCommon):
     def setup(self):
         self.frametype = SYNReplyFrame
+
+
+class TestRSTStreamFrame(object):
+    def test_build_flags_all_flags(self):
+        fr = RSTStreamFrame()
+
+        with raises(ValueError):
+            fr.build_flags(0xFF)
+
+    def test_build_flags_no_flags(self):
+        expected = set()
+
+        fr = RSTStreamFrame()
+        fr.build_flags(0)
+
+        assert fr.flags == expected

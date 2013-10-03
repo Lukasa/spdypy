@@ -163,3 +163,15 @@ class SYNReplyFrame(SYNMixin, Frame):
     A single SYN_REPLY frame.
     """
     pass
+
+
+class RSTStreamFrame(Frame):
+    """
+    A single RST_STREAM frame.
+    """
+    def build_flags(self, flag_byte):
+        """
+        Build the flags for this frame from the given byte.
+        """
+        if flag_byte != 0:
+            raise ValueError("RST_STREAM never defines flags.")
