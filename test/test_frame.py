@@ -8,7 +8,8 @@ from spdypy.frame import (Frame, SYNStreamFrame, SYNReplyFrame, RSTStreamFrame,
                           SettingsFrame, flags, from_bytes, SYN_STREAM,
                           SYN_REPLY, RST_STREAM, SETTINGS, PING, GOAWAY,
                           HEADERS, WINDOW_UPDATE, FLAG_FIN,
-                          FLAG_UNIDIRECTIONAL, FLAG_CLEAR_SETTINGS)
+                          FLAG_UNIDIRECTIONAL, FLAG_CLEAR_SETTINGS,
+                          FLAG_SETTINGS_PERSIST_VALUE, FLAG_SETTINGS_PERSISTED)
 from pytest import raises
 
 
@@ -153,3 +154,25 @@ class TestSettingsFrame(object):
         fr.build_flags(0x00)
 
         assert fr.flags == expected
+
+    def test_build_data_no_settings(self):
+        data = b'\x00\x00\x00\x00'
+
+        fr = SettingsFrame()
+        fr.build_data(data)
+
+        assert len(fr.settings) == 0
+
+    def test_build_data_some_settings(self):
+        data = b'\x00\x00\x00\x10\x01\x00\x00\x01\x00\x00\x00\x00\x02\x00\x00\x02\x00\x00\x00\x00'
+
+        fr = SettingsFrame()
+        fr.build_data(data)
+
+        assert len(fr.settings) == 2
+        assert fr.settings[0][0] == 0x000001
+        assert fr.settings[0][1] == 0x00000000
+        assert fr.settings[0][2] == set([FLAG_SETTINGS_PERSIST_VALUE])
+        assert fr.settings[1][0] == 0x000002
+        assert fr.settings[1][1] == 0x00000000
+        assert fr.settings[1][2] == set([FLAG_SETTINGS_PERSISTED])

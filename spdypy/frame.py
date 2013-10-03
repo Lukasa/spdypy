@@ -22,6 +22,8 @@ WINDOW_UPDATE = 9
 FLAG_FIN = 'FLAG_FIN'
 FLAG_UNIDIRECTIONAL = 'FLAG_UNIDIRECTIONAL'
 FLAG_CLEAR_SETTINGS = 'FLAG_CLEAR_SETTINGS'
+FLAG_SETTINGS_PERSIST_VALUE = 'FLAG_SETTINGS_PERSIST_VALUE'
+FLAG_SETTINGS_PERSISTED = 'FLAG_SETTINGS_PERSISTED'
 
 
 def flags(byte, frame_type=None):
@@ -203,3 +205,34 @@ class SettingsFrame(Frame):
         """
         if flag_byte & 0x01:
             self.flags.add(FLAG_CLEAR_SETTINGS)
+
+    def build_data(self, data_buffer):
+        """
+        Build the SETTINGS body fields.
+        """
+        self.settings = []
+
+        # The first 32 bits define the number of setting values to expect.
+        field_len = struct.unpack("!L", data_buffer[0:4])[0]
+        fields = field_len // 8
+
+        # Each of the ID/value pairs is 64 bits long. Expect that many of them.
+        struct_str = '!' + ('LL' * fields)
+        setting_pairs = struct.unpack(struct_str, data_buffer[4:4 + field_len])
+
+        for i in range(fields):
+            # Handle the flags first.
+            field_flags = set()
+
+            if setting_pairs[i * 2] & 0x01000000:
+                field_flags.add(FLAG_SETTINGS_PERSIST_VALUE)
+            if setting_pairs[i * 2] & 0x02000000:
+                field_flags.add(FLAG_SETTINGS_PERSISTED)
+
+            field_id = setting_pairs[i * 2] & 0x00FFFFFF
+            field_value = setting_pairs[(i * 2) + 1]
+
+            # Add the field.
+            self.settings.append((field_id, field_value, field_flags))
+
+        return
