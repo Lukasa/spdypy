@@ -117,3 +117,20 @@ class TestRSTStreamFrame(object):
         fr.build_flags(0)
 
         assert fr.flags == expected
+
+    def test_build_data_good(self):
+        data = b'\xff\xff\xff\xff\x00\x00\x00\x01'
+
+        fr = RSTStreamFrame()
+        fr.build_data(data)
+
+        assert fr.stream_id == 0x7FFFFFFF
+        assert fr.status_code == 1
+
+    def test_build_data_invalid_code(self):
+        data = b'\xff\xff\xff\xff\xff\xff\xff\xff'
+
+        fr = RSTStreamFrame()
+
+        with raises(RuntimeError):
+            fr.build_data(data)

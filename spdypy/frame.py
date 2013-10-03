@@ -175,3 +175,19 @@ class RSTStreamFrame(Frame):
         """
         if flag_byte != 0:
             raise ValueError("RST_STREAM never defines flags.")
+
+    def build_data(self, data_buffer):
+        """
+        Build the RST_STREAM body fields.
+        """
+        fields = struct.unpack("!LL", data_buffer[0:8])
+
+        self.stream_id = fields[0] & 0x7FFFFFFF
+
+        # Check the status code field as well.
+        if not 0 < fields[1] < 12:
+            raise RuntimeError("Invalid status code.")
+
+        self.status_code = fields[1]
+
+        return
