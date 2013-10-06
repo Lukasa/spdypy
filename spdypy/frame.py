@@ -262,6 +262,9 @@ class PingFrame(Frame):
             raise ValueError("PING never defines flags.")
 
     def build_data(self, data_buffer):
+        """
+        Build the PING body fields.
+        """
         self.ping_id = struct.unpack("!L", data_buffer[0:4])[0]
 
         return
