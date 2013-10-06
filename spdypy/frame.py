@@ -85,10 +85,7 @@ def from_bytes(buffer):
         version = fields[0] & 0x7FFF
         frame_type = fields[1]
 
-        if frame_type == SYN_STREAM:
-            frame = SYNStreamFrame()
-        else:
-            frame = Frame()
+        frame = frame_from_type.get(frame_type, Frame)()
 
         # Assign the fields we've already parsed.
         frame.control = True
@@ -268,3 +265,10 @@ class PingFrame(Frame):
         self.ping_id = struct.unpack("!L", data_buffer[0:4])[0]
 
         return
+
+
+# Map frame indicator bytes to frame objects.
+frame_from_type = {
+    SYN_STREAM: SYNStreamFrame,
+    SYN_REPLY: SYNReplyFrame,
+}
