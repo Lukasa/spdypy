@@ -192,3 +192,11 @@ class TestPingFrame(object):
         fr.build_flags(0x00)
 
         assert fr.flags == expected
+
+    def test_build_data(self):
+        data = b'\x00\x00\x00\x01'
+
+        fr = PingFrame()
+        fr.build_data(data)
+
+        assert fr.ping_id == 1
