@@ -9,7 +9,8 @@ from spdypy.frame import (Frame, SYNStreamFrame, SYNReplyFrame, RSTStreamFrame,
                           SYN_STREAM, SYN_REPLY, RST_STREAM, SETTINGS, PING,
                           GOAWAY, HEADERS, WINDOW_UPDATE, FLAG_FIN,
                           FLAG_UNIDIRECTIONAL, FLAG_CLEAR_SETTINGS,
-                          FLAG_SETTINGS_PERSIST_VALUE, FLAG_SETTINGS_PERSISTED)
+                          FLAG_SETTINGS_PERSIST_VALUE, FLAG_SETTINGS_PERSISTED,
+                          SETTINGS_UPLOAD_BANDWIDTH)
 from pytest import raises
 
 
@@ -83,6 +84,21 @@ class TestFromBytes(object):
         assert fr.flags == set()
         assert fr.stream_id == 0x7FFFFFFF
         assert fr.status_code == 1
+
+    def test_settings_frame_good(self):
+        data = b'\xff\xff\x00\x04\x01\x00\x00\x0c\x00\x00\x00\x01\x03\x00\x00\x01\xff\xff\xff\xff'
+        fr, consumed = from_bytes(data)
+
+        assert consumed == 20
+        assert isinstance(fr, SettingsFrame)
+        assert fr.control
+        assert fr.version == 0x7FFF
+        assert fr.flags == set([FLAG_CLEAR_SETTINGS])
+        assert len(fr.settings) == 1
+        assert fr.settings[0].id == SETTINGS_UPLOAD_BANDWIDTH
+        assert fr.settings[0].value == 0xFFFFFFFF
+        assert fr.settings[0].flags == set([FLAG_SETTINGS_PERSIST_VALUE,
+                                            FLAG_SETTINGS_PERSISTED])
 
 
 class SYNStreamFrameCommon(object):
