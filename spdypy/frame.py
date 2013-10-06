@@ -281,6 +281,16 @@ class GoAwayFrame(Frame):
         if flag_byte != 0:
             raise ValueError("GOAWAY never defines flags.")
 
+    def build_data(self, data_buffer):
+        """
+        Build the GOAWAY body fields.
+        """
+        fields = struct.unpack("!LL", data_buffer[0:8])
+        self.last_good_stream_id = fields[0] & 0x7FFFFFFF
+        self.status_code = fields[1]
+
+        return
+
 
 # Map frame indicator bytes to frame objects.
 frame_from_type = {

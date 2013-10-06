@@ -261,3 +261,12 @@ class TestGoAwayFrame(object):
         fr.build_flags(0x00)
 
         assert fr.flags == expected
+
+    def test_build_data_good(self):
+        data = b'\xff\xff\xff\xff\xff\xff\xff\xff'
+
+        fr = GoAwayFrame()
+        fr.build_data(data)
+
+        assert fr.last_good_stream_id == 0x7FFFFFFF
+        assert fr.status_code == 0xFFFFFFFF
