@@ -182,7 +182,7 @@ class TestSettingsFrame(object):
         assert len(fr.settings) == 0
 
     def test_build_data_some_settings(self):
-        data = b'\x00\x00\x00\x10\x01\x00\x00\x01\x00\x00\x00\x00\x02\x00\x00\x02\x00\x00\x00\x00'
+        data = b'\x00\x00\x00\x02\x01\x00\x00\x01\x00\x00\x00\x00\x02\x00\x00\x02\x00\x00\x00\x00'
 
         fr = SettingsFrame()
         fr.build_data(data)

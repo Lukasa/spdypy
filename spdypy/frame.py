@@ -225,8 +225,8 @@ class SettingsFrame(Frame):
         self.settings = []
 
         # The first 32 bits define the number of setting values to expect.
-        field_len = struct.unpack("!L", data_buffer[0:4])[0]
-        fields = field_len // 8
+        fields = struct.unpack("!L", data_buffer[0:4])[0]
+        field_len = fields * 8
 
         # Each of the ID/value pairs is 64 bits long. Expect that many of them.
         struct_str = '!' + ('LL' * fields)
