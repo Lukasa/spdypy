@@ -54,17 +54,23 @@ class TestFlags(object):
 
 
 class TestFromBytes(object):
-    def test_syn_stream_frame_good(self):
-        data = b'\xff\xff\x00\x01\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff'
+    def __test_syn_xxx_frame_good(self, frame_bytes, frametype):
+        data = b'\xff\xff' + frame_bytes + b'\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff'
         fr, consumed = from_bytes(data)
         assert consumed == 0xFFFFFF + 8
-        assert isinstance(fr, SYNStreamFrame)
+        assert isinstance(fr, frametype)
         assert fr.control
         assert fr.version == 0x7FFF
         assert fr.flags == set([FLAG_FIN, FLAG_UNIDIRECTIONAL])
         assert fr.stream_id == 0x7FFFFFFF
         assert fr.assoc_stream_id == 0x7FFFFFFF
         assert fr.priority == 0x07
+
+    def test_syn_stream_frame_good(self):
+        self.__test_syn_xxx_frame_good(b'\x00\x01', SYNStreamFrame)
+
+    def test_syn_reply_frame_good(self):
+        self.__test_syn_xxx_frame_good(b'\x00\x02', SYNReplyFrame)
 
 
 class SYNStreamFrameCommon(object):
