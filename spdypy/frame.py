@@ -6,6 +6,7 @@ spdypy.frame
 Defines SPDYPy's internal representation of a SPDY frame.
 """
 import struct
+from collections import namedtuple
 
 
 # Define our control frame types.
@@ -24,6 +25,10 @@ FLAG_UNIDIRECTIONAL = 'FLAG_UNIDIRECTIONAL'
 FLAG_CLEAR_SETTINGS = 'FLAG_CLEAR_SETTINGS'
 FLAG_SETTINGS_PERSIST_VALUE = 'FLAG_SETTINGS_PERSIST_VALUE'
 FLAG_SETTINGS_PERSISTED = 'FLAG_SETTINGS_PERSISTED'
+
+
+# Define our NamedTuple for containing frame settings.
+Settings = namedtuple('Settings', ['id', 'value', 'flags'])
 
 
 def parse_flags(byte, frame_type=None):
@@ -233,6 +238,6 @@ class SettingsFrame(Frame):
             field_value = setting_pairs[(i * 2) + 1]
 
             # Add the field.
-            self.settings.append((field_id, field_value, field_flags))
+            self.settings.append(Settings(field_id, field_value, field_flags))
 
         return

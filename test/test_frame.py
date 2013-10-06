@@ -170,9 +170,9 @@ class TestSettingsFrame(object):
         fr.build_data(data)
 
         assert len(fr.settings) == 2
-        assert fr.settings[0][0] == 0x000001
-        assert fr.settings[0][1] == 0x00000000
-        assert fr.settings[0][2] == set([FLAG_SETTINGS_PERSIST_VALUE])
-        assert fr.settings[1][0] == 0x000002
-        assert fr.settings[1][1] == 0x00000000
-        assert fr.settings[1][2] == set([FLAG_SETTINGS_PERSISTED])
+        assert fr.settings[0].id == 0x000001
+        assert fr.settings[0].value == 0x00000000
+        assert fr.settings[0].flags == set([FLAG_SETTINGS_PERSIST_VALUE])
+        assert fr.settings[1].id == 0x000002
+        assert fr.settings[1].value == 0x00000000
+        assert fr.settings[1].flags == set([FLAG_SETTINGS_PERSISTED])
