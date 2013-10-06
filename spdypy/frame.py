@@ -267,6 +267,18 @@ class PingFrame(Frame):
         return
 
 
+class GoAwayFrame(Frame):
+    """
+    A single GOAWAY frame.
+    """
+    def build_flags(self, flag_byte):
+        """
+        Build the flags for this frame from the given byte.
+        """
+        if flag_byte != 0:
+            raise ValueError("GOAWAY never defines flags.")
+
+
 # Map frame indicator bytes to frame objects.
 frame_from_type = {
     SYN_STREAM: SYNStreamFrame,
