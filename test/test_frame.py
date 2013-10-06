@@ -5,9 +5,9 @@ test/test_frame
 Tests of the SPDY frame.
 """
 from spdypy.frame import (Frame, SYNStreamFrame, SYNReplyFrame, RSTStreamFrame,
-                          SettingsFrame, parse_flags, from_bytes, SYN_STREAM,
-                          SYN_REPLY, RST_STREAM, SETTINGS, PING, GOAWAY,
-                          HEADERS, WINDOW_UPDATE, FLAG_FIN,
+                          SettingsFrame, PingFrame, parse_flags, from_bytes,
+                          SYN_STREAM, SYN_REPLY, RST_STREAM, SETTINGS, PING,
+                          GOAWAY, HEADERS, WINDOW_UPDATE, FLAG_FIN,
                           FLAG_UNIDIRECTIONAL, FLAG_CLEAR_SETTINGS,
                           FLAG_SETTINGS_PERSIST_VALUE, FLAG_SETTINGS_PERSISTED)
 from pytest import raises
@@ -176,3 +176,19 @@ class TestSettingsFrame(object):
         assert fr.settings[1].id == 0x000002
         assert fr.settings[1].value == 0x00000000
         assert fr.settings[1].flags == set([FLAG_SETTINGS_PERSISTED])
+
+
+class TestPingFrame(object):
+    def test_build_flags_all_flags(self):
+        fr = PingFrame()
+
+        with raises(ValueError):
+            fr.build_flags(0xFF)
+
+    def test_build_flags_no_flags(self):
+        expected = set()
+
+        fr = PingFrame()
+        fr.build_flags(0x00)
+
+        assert fr.flags == expected

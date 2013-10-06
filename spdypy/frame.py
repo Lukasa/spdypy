@@ -251,3 +251,15 @@ class SettingsFrame(Frame):
             self.settings.append(Settings(field_id, field_value, field_flags))
 
         return
+
+
+class PingFrame(Frame):
+    """
+    A single PING frame.
+    """
+    def build_flags(self, flag_byte):
+        """
+        Build the flags for this frame from the given byte.
+        """
+        if flag_byte != 0:
+            raise ValueError("PING never defines flags.")
