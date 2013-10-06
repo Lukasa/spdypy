@@ -5,7 +5,7 @@ test/test_frame
 Tests of the SPDY frame.
 """
 from spdypy.frame import (Frame, SYNStreamFrame, SYNReplyFrame, RSTStreamFrame,
-                          SettingsFrame, flags, from_bytes, SYN_STREAM,
+                          SettingsFrame, parse_flags, from_bytes, SYN_STREAM,
                           SYN_REPLY, RST_STREAM, SETTINGS, PING, GOAWAY,
                           HEADERS, WINDOW_UPDATE, FLAG_FIN,
                           FLAG_UNIDIRECTIONAL, FLAG_CLEAR_SETTINGS,
@@ -50,7 +50,7 @@ class TestFlags(object):
                     WINDOW_UPDATE: set()}
 
         for frame_type, result in expected.items():
-            assert result == flags(0xFF, frame_type)
+            assert result == parse_flags(0xFF, frame_type)
 
 
 class TestFromBytes(object):

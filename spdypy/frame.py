@@ -26,7 +26,7 @@ FLAG_SETTINGS_PERSIST_VALUE = 'FLAG_SETTINGS_PERSIST_VALUE'
 FLAG_SETTINGS_PERSISTED = 'FLAG_SETTINGS_PERSISTED'
 
 
-def flags(byte, frame_type=None):
+def parse_flags(byte, frame_type=None):
     """
     Given the flag byte and the frame type, return the flags that have been
     set. If the frame type is not set, assumes a data frame.
