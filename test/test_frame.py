@@ -72,6 +72,18 @@ class TestFromBytes(object):
     def test_syn_reply_frame_good(self):
         self.__test_syn_xxx_frame_good(b'\x00\x02', SYNReplyFrame)
 
+    def test_rst_stream_frame_good(self):
+        data = b'\xff\xff\x00\x03\x00\x00\x00\x08\xff\xff\xff\xff\x00\x00\x00\x01'
+        fr, consumed = from_bytes(data)
+
+        assert consumed == 16
+        assert isinstance(fr, RSTStreamFrame)
+        assert fr.control
+        assert fr.version == 0x7FFF
+        assert fr.flags == set()
+        assert fr.stream_id == 0x7FFFFFFF
+        assert fr.status_code == 1
+
 
 class SYNStreamFrameCommon(object):
     def test_build_flags_all_flags(self):

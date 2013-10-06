@@ -271,4 +271,5 @@ class PingFrame(Frame):
 frame_from_type = {
     SYN_STREAM: SYNStreamFrame,
     SYN_REPLY: SYNReplyFrame,
+    RST_STREAM: RSTStreamFrame,
 }
