@@ -111,6 +111,18 @@ class TestFromBytes(object):
         assert fr.flags == set()
         assert fr.ping_id == 0xFFFFFFFF
 
+    def test_goaway_frame_good(self):
+        data = b'\xff\xff\x00\x07\x00\x00\x00\x08\xff\xff\xff\xff\xff\xff\xff\xff'
+        fr, consumed = from_bytes(data)
+
+        assert consumed == 16
+        assert isinstance(fr, GoAwayFrame)
+        assert fr.control
+        assert fr.version == 0x7FFF
+        assert fr.flags == set()
+        assert fr.last_good_stream_id == 0x7FFFFFFF
+        assert fr.status_code == 0xFFFFFFFF
+
 
 class SYNStreamFrameCommon(object):
     def test_build_flags_all_flags(self):
