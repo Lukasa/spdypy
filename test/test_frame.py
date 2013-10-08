@@ -315,3 +315,19 @@ class TestHeaderFrame(object):
 
         assert fr.stream_id == 0x7FFFFFFF
         assert fr.name_value_block == b'\xff\xff\xff\xff'
+
+
+class TestWindowUpdateFrame(object):
+    def test_build_flags_all_flags(self):
+        fr = WindowUpdateFrame()
+
+        with raises(ValueError):
+            fr.build_flags(0xFF)
+
+    def test_build_flags_no_flags(self):
+        expected = set()
+
+        fr = WindowUpdateFrame()
+        fr.build_flags(0x00)
+
+        assert fr.flags == expected

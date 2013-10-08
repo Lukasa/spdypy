@@ -316,6 +316,18 @@ class HeadersFrame(Frame):
         self.name_value_block = data_buffer[8:]
 
 
+class WindowUpdateFrame(Frame):
+    """
+    A single WINDOW_UPDATE frame.
+    """
+    def build_flags(self, flag_byte):
+        """
+        Build the flags for this frame from the given byte.
+        """
+        if flag_byte != 0:
+            raise ValueError("WINDOW_UPDATE never defines flags.")
+
+
 # Map frame indicator bytes to frame objects.
 frame_from_type = {
     SYN_STREAM: SYNStreamFrame,
