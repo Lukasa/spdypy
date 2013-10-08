@@ -123,6 +123,18 @@ class TestFromBytes(object):
         assert fr.last_good_stream_id == 0x7FFFFFFF
         assert fr.status_code == 0xFFFFFFFF
 
+    def test_headers_frame_good(self):
+        data = b'\xff\xff\x00\x08\x01\x00\x00\x10\xff\xff\xff\xff\x00\x00\x00\x01\xff\xff\xff\xff'
+        fr, consumed = from_bytes(data)
+
+        assert consumed == 24
+        assert isinstance(fr, HeadersFrame)
+        assert fr.control
+        assert fr.version == 0x7FFF
+        assert fr.flags == set([FLAG_FIN])
+        assert fr.stream_id == 0x7FFFFFFF
+        assert fr.name_value_block == b'\xff\xff\xff\xff'
+
 
 class SYNStreamFrameCommon(object):
     def test_build_flags_all_flags(self):

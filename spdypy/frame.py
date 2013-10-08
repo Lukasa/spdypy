@@ -323,5 +323,6 @@ frame_from_type = {
     RST_STREAM: RSTStreamFrame,
     SETTINGS: SettingsFrame,
     PING: PingFrame,
-    GOAWAY: GoAwayFrame
+    GOAWAY: GoAwayFrame,
+    HEADERS: HeadersFrame
 }
