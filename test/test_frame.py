@@ -5,12 +5,12 @@ test/test_frame
 Tests of the SPDY frame.
 """
 from spdypy.frame import (Frame, SYNStreamFrame, SYNReplyFrame, RSTStreamFrame,
-                          SettingsFrame, PingFrame, GoAwayFrame, parse_flags,
-                          from_bytes, SYN_STREAM, SYN_REPLY, RST_STREAM,
-                          SETTINGS, PING, GOAWAY, HEADERS, WINDOW_UPDATE,
-                          FLAG_FIN, FLAG_UNIDIRECTIONAL, FLAG_CLEAR_SETTINGS,
-                          FLAG_SETTINGS_PERSIST_VALUE, FLAG_SETTINGS_PERSISTED,
-                          SETTINGS_UPLOAD_BANDWIDTH)
+                          SettingsFrame, PingFrame, GoAwayFrame, HeadersFrame,
+                          parse_flags, from_bytes, SYN_STREAM, SYN_REPLY,
+                          RST_STREAM, SETTINGS, PING, GOAWAY, HEADERS,
+                          WINDOW_UPDATE, FLAG_FIN, FLAG_UNIDIRECTIONAL,
+                          FLAG_CLEAR_SETTINGS, FLAG_SETTINGS_PERSIST_VALUE,
+                          FLAG_SETTINGS_PERSISTED, SETTINGS_UPLOAD_BANDWIDTH)
 from pytest import raises
 
 
@@ -282,3 +282,30 @@ class TestGoAwayFrame(object):
 
         assert fr.last_good_stream_id == 0x7FFFFFFF
         assert fr.status_code == 0xFFFFFFFF
+
+
+class TestHeaderFrame(object):
+    def test_build_flags_all_flags(self):
+        expected = set([FLAG_FIN])
+
+        fr = HeadersFrame()
+        fr.build_flags(0xFF)
+
+        assert fr.flags == expected
+
+    def test_build_flags_no_flags(self):
+        expected = set()
+
+        fr = HeadersFrame()
+        fr.build_flags(0x00)
+
+        assert fr.flags == expected
+
+    def test_build_data_good(self):
+        data = b'\xff\xff\xff\xff\x00\x00\x00\x01\xff\xff\xff\xff'
+
+        fr = HeadersFrame()
+        fr.build_data(data)
+
+        assert fr.stream_id == 0x7FFFFFFF
+        assert fr.name_value_block == b'\xff\xff\xff\xff'

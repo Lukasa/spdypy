@@ -292,6 +292,30 @@ class GoAwayFrame(Frame):
         return
 
 
+class HeadersFrame(Frame):
+    """
+    A single HEADERS frame.
+    """
+    def build_flags(self, flag_byte):
+        """
+        Build the flags for this frame from the given byte.
+        """
+        if flag_byte & 0x01:
+            self.flags.add(FLAG_FIN)
+
+    def build_data(self, data_buffer):
+        """
+        Build the HEADERS body fields.
+        """
+        fields = struct.unpack("!LL", data_buffer[0:8])
+        self.stream_id = fields[0] & 0x7FFFFFFF
+        field_count = fields[1]
+
+        # We now have the Name/Value header block. For the moment don't try to
+        # understand it, we'll come back to it.
+        self.name_value_block = data_buffer[8:]
+
+
 # Map frame indicator bytes to frame objects.
 frame_from_type = {
     SYN_STREAM: SYNStreamFrame,
