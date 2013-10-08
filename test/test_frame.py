@@ -129,6 +129,18 @@ class TestFromBytes(object):
         assert fr.stream_id == 0x7FFFFFFF
         assert fr.name_value_block == b'\xff\xff\xff\xff'
 
+    def test_window_update_frame_good(self):
+        data = b'\xff\xff\x00\x09\x00\x00\x00\x08\xff\xff\xff\xff\xff\xff\xff\xff'
+        fr, consumed = from_bytes(data)
+
+        assert consumed == 16
+        assert isinstance(fr, WindowUpdateFrame)
+        assert fr.control
+        assert fr.version == 0x7FFF
+        assert fr.flags == set()
+        assert fr.stream_id == 0x7FFFFFFF
+        assert fr.delta_window_size == 0x7FFFFFFF
+
 
 class SYNStreamFrameCommon(object):
     def test_build_flags_all_flags(self):

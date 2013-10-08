@@ -345,5 +345,6 @@ frame_from_type = {
     SETTINGS: SettingsFrame,
     PING: PingFrame,
     GOAWAY: GoAwayFrame,
-    HEADERS: HeadersFrame
+    HEADERS: HeadersFrame,
+    WINDOW_UPDATE: WindowUpdateFrame,
 }
