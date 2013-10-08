@@ -331,3 +331,12 @@ class TestWindowUpdateFrame(object):
         fr.build_flags(0x00)
 
         assert fr.flags == expected
+
+    def test_build_data_good(self):
+        data = b'\xff\xff\xff\xff\xff\xff\xff\xff'
+
+        fr = WindowUpdateFrame()
+        fr.build_data(data)
+
+        assert fr.stream_id == 0x7FFFFFFF
+        assert fr.delta_window_size == 0x7FFFFFFF

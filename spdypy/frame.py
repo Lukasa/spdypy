@@ -327,6 +327,15 @@ class WindowUpdateFrame(Frame):
         if flag_byte != 0:
             raise ValueError("WINDOW_UPDATE never defines flags.")
 
+    def build_data(self, data_buffer):
+        """
+        Build the WINDOW_UPDATE body fields.
+        """
+        fields = struct.unpack("!LL", data_buffer[0:8])
+
+        self.stream_id = fields[0] & 0x7FFFFFFF
+        self.delta_window_size = fields[1] & 0x7FFFFFFF
+
 
 # Map frame indicator bytes to frame objects.
 frame_from_type = {
