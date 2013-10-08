@@ -4,13 +4,7 @@ test/test_frame
 ~~~~~~~~~~~~~~~
 Tests of the SPDY frame.
 """
-from spdypy.frame import (Frame, SYNStreamFrame, SYNReplyFrame, RSTStreamFrame,
-                          SettingsFrame, PingFrame, GoAwayFrame, HeadersFrame,
-                          parse_flags, from_bytes, SYN_STREAM, SYN_REPLY,
-                          RST_STREAM, SETTINGS, PING, GOAWAY, HEADERS,
-                          WINDOW_UPDATE, FLAG_FIN, FLAG_UNIDIRECTIONAL,
-                          FLAG_CLEAR_SETTINGS, FLAG_SETTINGS_PERSIST_VALUE,
-                          FLAG_SETTINGS_PERSISTED, SETTINGS_UPLOAD_BANDWIDTH)
+from spdypy.frame import *
 from pytest import raises
 
 
