@@ -41,34 +41,6 @@ SETTINGS_CLIENT_CERTIFICATE_VECTOR_SIZE = 8
 Settings = namedtuple('Settings', ['id', 'value', 'flags'])
 
 
-def parse_flags(byte, frame_type=None):
-    """
-    Given the flag byte and the frame type, return the flags that have been
-    set. If the frame type is not set, assumes a data frame.
-
-    :param byte: The flag byte.
-    :param frame_type: The control frame type, or None if the frame is a data
-                       frame.
-    """
-    flags = set()
-
-    if frame_type in (None, SYN_REPLY, HEADERS):
-        if byte & 0x01:
-            flags.add(FLAG_FIN)
-
-    elif frame_type == SYN_STREAM:
-        if byte & 0x01:
-            flags.add(FLAG_FIN)
-        if byte & 0x02:
-            flags.add(FLAG_UNIDIRECTIONAL)
-
-    elif frame_type == SETTINGS:
-        if byte & 0x01:
-            flags.add(FLAG_CLEAR_SETTINGS)
-
-    return flags
-
-
 def from_bytes(buffer):
     """
     Build a Frame object from the buffer. Returns the correct Frame and the

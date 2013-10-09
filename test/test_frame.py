@@ -31,23 +31,6 @@ class TestFrame(object):
             fr.build_data('')
 
 
-class TestFlags(object):
-    def test_all_flags_set(self):
-        # This test isn't totally realistic, as the server shouldn't set
-        # undefined flags, but it's a good test of output.
-        expected = {SYN_STREAM: set([FLAG_FIN, FLAG_UNIDIRECTIONAL]),
-                    SYN_REPLY: set([FLAG_FIN]),
-                    RST_STREAM: set(),
-                    SETTINGS: set([FLAG_CLEAR_SETTINGS]),
-                    PING: set(),
-                    GOAWAY: set(),
-                    HEADERS: set([FLAG_FIN]),
-                    WINDOW_UPDATE: set()}
-
-        for frame_type, result in expected.items():
-            assert result == parse_flags(0xFF, frame_type)
-
-
 class TestFromBytes(object):
     def __test_syn_xxx_frame_good(self, frame_bytes, frametype):
         data = b'\xff\xff' + frame_bytes + b'\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff'
