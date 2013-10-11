@@ -49,6 +49,13 @@ SPDYPy currently only supports Python 3.3+, because that is the earliest
 version of Python that supports TLS Next Protocol Negotation. If anyone is
 able to backport that support into earlier versions, please get in touch.
 
+For the same reason, SPDYPy also requires OpenSSL version 1.0.1 or later,
+because that is the minimum version that supports NPN. If your currently
+installed version of OpenSSL is older than that you will need to upgrade, and
+then recompile Python 3.3 against the new version of OpenSSL.
+
+Instructions for how to do this will come shortly.
+
 License
 -------
 
