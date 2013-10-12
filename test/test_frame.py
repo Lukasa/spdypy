@@ -16,7 +16,6 @@ class TestFrame(object):
         fr = Frame()
         assert fr.control is None
         assert fr.version is None
-        assert fr.type is None
         assert fr.flags == set()
         assert fr.data is None
         assert fr.stream_id is None

@@ -88,7 +88,6 @@ class Frame(object):
     def __init__(self):
         self.control = None
         self.version = None
-        self.type = None
         self.flags = set()
         self.data = None
         self.stream_id = None
