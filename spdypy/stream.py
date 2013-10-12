@@ -18,6 +18,8 @@ class Stream(object):
     abstraction, and not intended for use by end-users of SPDYPy.
 
     :param stream_id: The stream_id for this stream.
+    :param version: The SPDY version this stream is for.
     """
-    def __init__(self, stream_id):
+    def __init__(self, stream_id, version):
         self.stream_id = stream_id
+        self.version = version

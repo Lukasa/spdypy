@@ -10,5 +10,9 @@ from spdypy.stream import *
 
 class TestStream(object):
     def test_streams_require_stream_ids(self):
-        s = Stream(1)
+        s = Stream(1, None)
         assert s.stream_id == 1
+
+    def test_streams_require_versions(self):
+        s = Stream(None, 1)
+        assert s.version == 1
