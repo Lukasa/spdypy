@@ -124,30 +124,40 @@ class SYNMixin(object):
         if flag_byte & 0x02:
             self.flags.add(FLAG_UNIDIRECTIONAL)
 
-    def build_data(self, data_buffer):
+    def build_data(self, data_buffer, stream):
         """
-        Build the SYN_STREAM body fields.
+        Build the SYN_XXX body fields. Set 'stream' to True if this is a
+        SYN_STREAM frame, otherwise set to False.
         """
-        fields = struct.unpack("!LLL", data_buffer[0:12])
-        self.stream_id = fields[0] & 0x7FFFFFFF
-        self.assoc_stream_id = fields[1] & 0x7FFFFFFF
-        self.priority = (fields[2] & 0xE0000000) >> 29
+        if stream:
+            fields = struct.unpack("!LLL", data_buffer[0:12])
+        else:
+            fields = struct.unpack("!L", data_buffer[0:4])
 
-        self.name_value_block = data_buffer[12:]
+        self.stream_id = fields[0] & 0x7FFFFFFF
+
+        if stream:
+            self.assoc_stream_id = fields[1] & 0x7FFFFFFF
+            self.priority = (fields[2] & 0xE0000000) >> 29
+            self.name_value_block = data_buffer[12:]
+        else:
+            self.name_value_block = data_buffer[4:]
 
 
 class SYNStreamFrame(SYNMixin, Frame):
     """
     A single SYN_STREAM frame.
     """
-    pass
+    def build_data(self, data_buffer):
+        super(SYNStreamFrame, self).build_data(data_buffer, True)
 
 
 class SYNReplyFrame(SYNMixin, Frame):
     """
     A single SYN_REPLY frame.
     """
-    pass
+    def build_data(self, data_buffer):
+        super(SYNReplyFrame, self).build_data(data_buffer, False)
 
 
 class RSTStreamFrame(Frame):

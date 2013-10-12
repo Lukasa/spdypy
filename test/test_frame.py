@@ -40,8 +40,10 @@ class TestFromBytes(object):
         assert fr.version == 0x7FFF
         assert fr.flags == set([FLAG_FIN, FLAG_UNIDIRECTIONAL])
         assert fr.stream_id == 0x7FFFFFFF
-        assert fr.assoc_stream_id == 0x7FFFFFFF
-        assert fr.priority == 0x07
+
+        if frametype is SYNStreamFrame:
+            assert fr.assoc_stream_id == 0x7FFFFFFF
+            assert fr.priority == 0x07
 
     def test_syn_stream_frame_good(self):
         self.__test_syn_xxx_frame_good(b'\x00\x01', SYNStreamFrame)
@@ -141,6 +143,12 @@ class SYNStreamFrameCommon(object):
 
         assert fr.flags == expected
 
+
+
+class TestSYNStreamFrame(SYNStreamFrameCommon):
+    def setup(self):
+        self.frametype = SYNStreamFrame
+
     def test_non_nv_block_data_good(self):
         data = b'\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff'
 
@@ -152,14 +160,17 @@ class SYNStreamFrameCommon(object):
         assert fr.priority == 0x07
 
 
-class TestSYNStreamFrame(SYNStreamFrameCommon):
-    def setup(self):
-        self.frametype = SYNStreamFrame
-
-
 class TestSYNReplyFrame(SYNStreamFrameCommon):
     def setup(self):
         self.frametype = SYNReplyFrame
+
+    def test_non_nv_block_data_good(self):
+        data = b'\xff\xff\xff\xff'
+
+        fr = self.frametype()
+        fr.build_data(data)
+
+        assert fr.stream_id == 0x7FFFFFFF
 
 
 class TestRSTStreamFrame(object):
