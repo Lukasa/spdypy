@@ -41,12 +41,13 @@ SETTINGS_CLIENT_CERTIFICATE_VECTOR_SIZE = 8
 Settings = namedtuple('Settings', ['id', 'value', 'flags'])
 
 
-def from_bytes(buffer):
+def from_bytes(buffer, decompressor=None):
     """
     Build a Frame object from the buffer. Returns the correct Frame and the
     number of bytes consumed from the buffer.
 
     :param buffer: The byte buffer that represents the frame.
+    :param decompressor: Optionally provide a decompressor for the NV block.
     """
     control = buffer[0] & 0x80
 
@@ -75,7 +76,7 @@ def from_bytes(buffer):
     length = struct.unpack("!L", buffer[4:8])[0] & 0x00FFFFFF
 
     # Then pass the remaining data to the data builder.
-    frame.build_data(buffer[8:8 + length])
+    frame.build_data(buffer[8:8 + length], decompressor)
 
     return (frame, 8 + length)
 
@@ -143,7 +144,7 @@ class Frame(object):
         """
         raise NotImplementedError("This is an abstract base class.")
 
-    def build_data(self, data_buffer):
+    def build_data(self, data_buffer, decompressor):
         """
         This method builds the relevant instance variables from the data buffer
         that makes up the frame body.
@@ -168,7 +169,7 @@ class SYNMixin(object):
         if flag_byte & 0x02:
             self.flags.add(FLAG_UNIDIRECTIONAL)
 
-    def build_data(self, data_buffer, stream):
+    def build_data(self, data_buffer, decompressor, stream):
         """
         Build the SYN_XXX body fields. Set 'stream' to True if this is a
         SYN_STREAM frame, otherwise set to False.
@@ -183,25 +184,25 @@ class SYNMixin(object):
         if stream:
             self.assoc_stream_id = fields[1] & 0x7FFFFFFF
             self.priority = (fields[2] & 0xE0000000) >> 29
-            self.name_value_block = data_buffer[12:]
+            self.headers = parse_nv_block(decompressor, data_buffer[12:])
         else:
-            self.name_value_block = data_buffer[4:]
+            self.headers = parse_nv_block(decompressor, data_buffer[4:])
 
 
 class SYNStreamFrame(SYNMixin, Frame):
     """
     A single SYN_STREAM frame.
     """
-    def build_data(self, data_buffer):
-        super(SYNStreamFrame, self).build_data(data_buffer, True)
+    def build_data(self, data_buffer, decompressor):
+        super(SYNStreamFrame, self).build_data(data_buffer, decompressor, True)
 
 
 class SYNReplyFrame(SYNMixin, Frame):
     """
     A single SYN_REPLY frame.
     """
-    def build_data(self, data_buffer):
-        super(SYNReplyFrame, self).build_data(data_buffer, False)
+    def build_data(self, data_buffer, decompressor):
+        super(SYNReplyFrame, self).build_data(data_buffer, decompressor, False)
 
 
 class RSTStreamFrame(Frame):
@@ -215,7 +216,7 @@ class RSTStreamFrame(Frame):
         if flag_byte != 0:
             raise ValueError("RST_STREAM never defines flags.")
 
-    def build_data(self, data_buffer):
+    def build_data(self, data_buffer, *args):
         """
         Build the RST_STREAM body fields.
         """
@@ -243,7 +244,7 @@ class SettingsFrame(Frame):
         if flag_byte & 0x01:
             self.flags.add(FLAG_CLEAR_SETTINGS)
 
-    def build_data(self, data_buffer):
+    def build_data(self, data_buffer, *args):
         """
         Build the SETTINGS body fields.
         """
@@ -286,7 +287,7 @@ class PingFrame(Frame):
         if flag_byte != 0:
             raise ValueError("PING never defines flags.")
 
-    def build_data(self, data_buffer):
+    def build_data(self, data_buffer, *args):
         """
         Build the PING body fields.
         """
@@ -306,7 +307,7 @@ class GoAwayFrame(Frame):
         if flag_byte != 0:
             raise ValueError("GOAWAY never defines flags.")
 
-    def build_data(self, data_buffer):
+    def build_data(self, data_buffer, *args):
         """
         Build the GOAWAY body fields.
         """
@@ -328,7 +329,7 @@ class HeadersFrame(Frame):
         if flag_byte & 0x01:
             self.flags.add(FLAG_FIN)
 
-    def build_data(self, data_buffer):
+    def build_data(self, data_buffer, decompressor):
         """
         Build the HEADERS body fields.
         """
@@ -338,7 +339,7 @@ class HeadersFrame(Frame):
 
         # We now have the Name/Value header block. For the moment don't try to
         # understand it, we'll come back to it.
-        self.name_value_block = data_buffer[8:]
+        self.name_value_block = parse_nv_block(decompressor, data_buffer[8:])
 
 
 class WindowUpdateFrame(Frame):
@@ -352,7 +353,7 @@ class WindowUpdateFrame(Frame):
         if flag_byte != 0:
             raise ValueError("WINDOW_UPDATE never defines flags.")
 
-    def build_data(self, data_buffer):
+    def build_data(self, data_buffer, *args):
         """
         Build the WINDOW_UPDATE body fields.
         """

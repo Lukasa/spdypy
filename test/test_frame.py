@@ -10,6 +10,14 @@ from spdypy.data import SPDY_3_ZLIB_DICT
 from pytest import raises
 
 
+class NullDecompressor(object):
+    """
+    Useful decompressor that just returns the data put in.
+    """
+    def decompress(self, data):
+        return data
+
+
 class TestFrame(object):
     def test_can_create_blank_frame(self):
         assert Frame()
@@ -29,13 +37,16 @@ class TestFrame(object):
             fr.build_flags(0x00)
 
         with raises(NotImplementedError):
-            fr.build_data('')
+            fr.build_data('', None)
 
 
 class TestFromBytes(object):
     def __test_syn_xxx_frame_good(self, frame_bytes, frametype):
-        data = b'\xff\xff' + frame_bytes + b'\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff'
-        fr, consumed = from_bytes(data)
+        data = b'\xff\xff' + frame_bytes + b'\xff\xff\xff\xff\xff\xff\xff\xff'
+        if frametype is SYNStreamFrame:
+            data += b'\xff\xff\xff\xff\xff\xff\xff\xff'
+
+        fr, consumed = from_bytes(data, NullDecompressor())
         assert consumed == 0xFFFFFF + 8
         assert isinstance(fr, frametype)
         assert fr.control
@@ -104,8 +115,8 @@ class TestFromBytes(object):
         assert fr.status_code == 0xFFFFFFFF
 
     def test_headers_frame_good(self):
-        data = b'\xff\xff\x00\x08\x01\x00\x00\x10\xff\xff\xff\xff\x00\x00\x00\x01\xff\xff\xff\xff'
-        fr, consumed = from_bytes(data)
+        data = b'\xff\xff\x00\x08\x01\x00\x00\x10\xff\xff\xff\xff\x00\x00\x00\x00'
+        fr, consumed = from_bytes(data, NullDecompressor())
 
         assert consumed == 24
         assert isinstance(fr, HeadersFrame)
@@ -113,7 +124,7 @@ class TestFromBytes(object):
         assert fr.version == 0x7FFF
         assert fr.flags == set([FLAG_FIN])
         assert fr.stream_id == 0x7FFFFFFF
-        assert fr.name_value_block == b'\xff\xff\xff\xff'
+        assert fr.name_value_block == {}
 
     def test_window_update_frame_good(self):
         data = b'\xff\xff\x00\x09\x00\x00\x00\x08\xff\xff\xff\xff\xff\xff\xff\xff'
@@ -167,7 +178,7 @@ class TestSYNStreamFrame(SYNStreamFrameCommon):
         data = b'\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff'
 
         fr = self.frametype()
-        fr.build_data(data)
+        fr.build_data(data, NullDecompressor())
 
         assert fr.stream_id == 0x7FFFFFFF
         assert fr.assoc_stream_id == 0x7FFFFFFF
@@ -182,7 +193,7 @@ class TestSYNReplyFrame(SYNStreamFrameCommon):
         data = b'\xff\xff\xff\xff'
 
         fr = self.frametype()
-        fr.build_data(data)
+        fr.build_data(data, NullDecompressor())
 
         assert fr.stream_id == 0x7FFFFFFF
 
@@ -326,14 +337,13 @@ class TestHeaderFrame(object):
 
         assert fr.flags == expected
 
-    def test_build_data_good(self):
-        data = b'\xff\xff\xff\xff\x00\x00\x00\x01\xff\xff\xff\xff'
+    def test_build_data_no_nv_block(self):
+        data = b'\xff\xff\xff\xff\x00\x00\x00\x01'
 
         fr = HeadersFrame()
-        fr.build_data(data)
+        fr.build_data(data, NullDecompressor())
 
         assert fr.stream_id == 0x7FFFFFFF
-        assert fr.name_value_block == b'\xff\xff\xff\xff'
 
 
 class TestWindowUpdateFrame(object):
