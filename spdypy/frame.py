@@ -89,6 +89,9 @@ def parse_nv_block(decompressor, nv_bytes):
     """
     headers = {}
 
+    if not nv_bytes:
+        return headers
+
     data = decompressor.decompress(nv_bytes)
 
     # Get the number of NV pairs.
