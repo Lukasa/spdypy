@@ -333,13 +333,11 @@ class HeadersFrame(Frame):
         """
         Build the HEADERS body fields.
         """
-        fields = struct.unpack("!LL", data_buffer[0:8])
+        fields = struct.unpack("!L", data_buffer[0:4])
         self.stream_id = fields[0] & 0x7FFFFFFF
-        field_count = fields[1]
 
-        # We now have the Name/Value header block. For the moment don't try to
-        # understand it, we'll come back to it.
-        self.name_value_block = parse_nv_block(decompressor, data_buffer[8:])
+        # We now have the Name/Value header block.
+        self.headers = parse_nv_block(decompressor, data_buffer[4:])
 
 
 class WindowUpdateFrame(Frame):

@@ -126,16 +126,24 @@ class TestFromBytes(object):
         assert fr.status_code == 0xFFFFFFFF
 
     def test_headers_frame_good(self):
-        data = b'\xff\xff\x00\x08\x01\x00\x00\x10\xff\xff\xff\xff\x00\x00\x00\x00'
-        fr, consumed = from_bytes(data, NullDecompressor())
+        # Prepare for the NV block.
+        indata = b'\x00\x00\x00\x02\x00\x00\x00\x01a\x00\x00\x00\x01b\x00\x00\x00\x01c\x00\x00\x00\x03d\x00e'
+        compobj = zlib.compressobj(zdict=SPDY_3_ZLIB_DICT)
+        compressed = compobj.compress(indata)
+        compressed += compobj.flush(zlib.Z_SYNC_FLUSH)
+        decobj = zlib.decompressobj(zdict=SPDY_3_ZLIB_DICT)
+        nv_expected = {b'a': b'b', b'c': [b'd', b'e']}
 
-        assert consumed == 24
+        data = (b'\xff\xff\x00\x08\x01\x00\x00' + chr(len(compressed) + 4).encode('ascii') + b'\xff\xff\xff\xff' + compressed)
+        fr, consumed = from_bytes(data, decobj)
+
+        assert consumed == 8 + 4 + len(compressed)
         assert isinstance(fr, HeadersFrame)
         assert fr.control
         assert fr.version == 0x7FFF
         assert fr.flags == set([FLAG_FIN])
         assert fr.stream_id == 0x7FFFFFFF
-        assert fr.name_value_block == {}
+        assert fr.headers == nv_expected
 
     def test_window_update_frame_good(self):
         data = b'\xff\xff\x00\x09\x00\x00\x00\x08\xff\xff\xff\xff\xff\xff\xff\xff'
@@ -349,7 +357,7 @@ class TestHeaderFrame(object):
         assert fr.flags == expected
 
     def test_build_data_no_nv_block(self):
-        data = b'\xff\xff\xff\xff\x00\x00\x00\x01'
+        data = b'\xff\xff\xff\xff\x00\x00\x00\x00'
 
         fr = HeadersFrame()
         fr.build_data(data, NullDecompressor())
