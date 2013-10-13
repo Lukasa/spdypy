@@ -80,6 +80,47 @@ def from_bytes(buffer):
     return (frame, 8 + length)
 
 
+def parse_nv_block(decompressor, nv_bytes):
+    """
+    This function parses the compressed name-value header block.
+
+    :param decompressor: A ``zlib`` decompression object from the stream.
+    :param nv_bytes: The bytes comprising the name-value header block.
+    """
+    headers = {}
+
+    data = decompressor.decompress(nv_bytes)
+
+    # Get the number of NV pairs.
+    num = struct.unpack("!L", data[0:4])[0]
+
+    data = data[4:]
+
+    # Remaining data.
+    for i in range(0, num):
+        # Get the length of the name, in octets.
+        name_len = struct.unpack("!L", data[0:4])[0]
+        name = data[4:4+name_len]
+
+        data = data[4+name_len:]
+
+        # Now the length of the value.
+        value_len = struct.unpack("!L", data[0:4])[0]
+        value = data[4:4+value_len]
+
+        data = data[4+value_len:]
+
+        # You can get multiple values in a header, they're separated by
+        # null bytes. Use a list to store the multiple values.
+        vals = value.split(b'\0')
+        if len(vals) == 1:
+            vals = vals[0]
+
+        headers[name] = vals
+
+    return headers
+
+
 class Frame(object):
     """
     A single SPDY frame. This is effectively an abstract base class for the

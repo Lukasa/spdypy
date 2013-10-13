@@ -4,7 +4,9 @@ test/test_frame
 ~~~~~~~~~~~~~~~
 Tests of the SPDY frame.
 """
+import zlib
 from spdypy.frame import *
+from spdypy.data import SPDY_3_ZLIB_DICT
 from pytest import raises
 
 
@@ -126,6 +128,19 @@ class TestFromBytes(object):
         assert fr.delta_window_size == 0x7FFFFFFF
 
 
+class TestNVBlock(object):
+    def test_basic_nv_block_parsing(self):
+        indata = b'\x00\x00\x00\x02\x00\x00\x00\x01a\x00\x00\x00\x01b\x00\x00\x00\x01c\x00\x00\x00\x03d\x00e'
+        compobj = zlib.compressobj(zdict=SPDY_3_ZLIB_DICT)
+        compressed = compobj.compress(indata)
+        compressed += compobj.flush(zlib.Z_SYNC_FLUSH)
+        decobj = zlib.decompressobj(zdict=SPDY_3_ZLIB_DICT)
+        expected = {b'a': b'b', b'c': [b'd', b'e']}
+
+        headers = parse_nv_block(decobj, compressed)
+        assert headers == expected
+
+
 class SYNStreamFrameCommon(object):
     def test_build_flags_all_flags(self):
         expected = set([FLAG_FIN, FLAG_UNIDIRECTIONAL])
@@ -142,7 +157,6 @@ class SYNStreamFrameCommon(object):
         fr.build_flags(0)
 
         assert fr.flags == expected
-
 
 
 class TestSYNStreamFrame(SYNStreamFrameCommon):
