@@ -42,17 +42,28 @@ class TestFrame(object):
 
 class TestFromBytes(object):
     def __test_syn_xxx_frame_good(self, frame_bytes, frametype):
+        # Prepare for the NV block.
+        indata = b'\x00\x00\x00\x02\x00\x00\x00\x01a\x00\x00\x00\x01b\x00\x00\x00\x01c\x00\x00\x00\x03d\x00e'
+        compobj = zlib.compressobj(zdict=SPDY_3_ZLIB_DICT)
+        compressed = compobj.compress(indata)
+        compressed += compobj.flush(zlib.Z_SYNC_FLUSH)
+        decobj = zlib.decompressobj(zdict=SPDY_3_ZLIB_DICT)
+        nv_expected = {b'a': b'b', b'c': [b'd', b'e']}
+
         data = b'\xff\xff' + frame_bytes + b'\xff\xff\xff\xff\xff\xff\xff\xff'
         if frametype is SYNStreamFrame:
             data += b'\xff\xff\xff\xff\xff\xff\xff\xff'
 
-        fr, consumed = from_bytes(data, NullDecompressor())
+        data += compressed
+
+        fr, consumed = from_bytes(data, decobj)
         assert consumed == 0xFFFFFF + 8
         assert isinstance(fr, frametype)
         assert fr.control
         assert fr.version == 0x7FFF
         assert fr.flags == set([FLAG_FIN, FLAG_UNIDIRECTIONAL])
         assert fr.stream_id == 0x7FFFFFFF
+        assert fr.headers == nv_expected
 
         if frametype is SYNStreamFrame:
             assert fr.assoc_stream_id == 0x7FFFFFFF
