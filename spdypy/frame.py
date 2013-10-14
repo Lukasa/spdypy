@@ -181,7 +181,7 @@ class Frame(object):
         """
         raise NotImplementedError("This is an abtract base class.")
 
-    def to_bytes(self):
+    def to_bytes(self, *args):
         """
         This method re-serialises the frame into a bytestring suitable for
         sending on the wire.
