@@ -39,6 +39,9 @@ class TestFrame(object):
         with raises(NotImplementedError):
             fr.build_data('', None)
 
+        with raises(NotImplementedError):
+            fr.to_bytes()
+
 
 class TestFromBytes(object):
     def __test_syn_xxx_frame_good(self, frame_bytes, frametype):
