@@ -233,6 +233,35 @@ class SYNStreamFrame(SYNMixin, Frame):
     def build_data(self, data_buffer, decompressor):
         super(SYNStreamFrame, self).build_data(data_buffer, decompressor, True)
 
+    def to_bytes(self, compressor):
+        """
+        Serialise the SYN_STREAM frame to a bytestream.
+        """
+        version = 0x8000 | self.version
+        flags = 0
+
+        if FLAG_FIN in self.flags:
+            flags = flags | 0x01
+        if FLAG_UNIDIRECTIONAL in self.flags:
+            flags = flags | 0x02
+
+        # We need the compressed NV block.
+        nv_block = build_nv_block(compressor, self.headers)
+
+        length = 10 + len(nv_block)
+
+        data = struct.pack("!HHLLLL",
+                           version,
+                           1,
+                           ((flags << 24) | length),
+                           self.stream_id,
+                           self.assoc_stream_id,
+                           (self.priority << 29))
+
+        data += nv_block
+
+        return data
+
 
 class SYNReplyFrame(SYNMixin, Frame):
     """
