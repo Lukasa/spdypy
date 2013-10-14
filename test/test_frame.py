@@ -173,6 +173,16 @@ class TestNVBlock(object):
         headers = parse_nv_block(decobj, compressed)
         assert headers == expected
 
+    def test_can_build_nv_block(self):
+        indata = {b'a': b'b', b'c': [b'd', b'e']}
+        compobj = zlib.compressobj(zdict=SPDY_3_ZLIB_DICT)
+        decobj = zlib.decompressobj(zdict=SPDY_3_ZLIB_DICT)
+        expected = b'\x00\x00\x00\x02\x00\x00\x00\x01a\x00\x00\x00\x01b\x00\x00\x00\x01c\x00\x00\x00\x03d\x00e'
+
+        block = build_nv_block(compobj, indata)
+        dec = decobj.decompress(block)
+        assert dec == expected
+
 
 class SYNStreamFrameCommon(object):
     def test_build_flags_all_flags(self):

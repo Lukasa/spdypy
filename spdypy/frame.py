@@ -6,6 +6,7 @@ spdypy.frame
 Defines SPDYPy's internal representation of a SPDY frame.
 """
 import struct
+import zlib
 from collections import namedtuple
 
 
@@ -123,6 +124,35 @@ def parse_nv_block(decompressor, nv_bytes):
         headers[name] = vals
 
     return headers
+
+
+def build_nv_block(compressor, nv_headers):
+    """
+    Build the compressed Name-Value header block.
+
+    :param compressor: The zlib compressor object for the stream.
+    :param nv_headers: The dictionary representing the NV header block.
+    """
+    # First, stringify!
+    data = struct.pack("!L", len(nv_headers))
+
+    for name, value in nv_headers.items():
+        data += struct.pack("!L", len(name))
+        data += name
+
+        if isinstance(value, list):
+            joined = b'\0'.join(value)
+            data += struct.pack("!L", len(joined))
+            data += joined
+        else:
+            data += struct.pack("!L", len(value))
+            data += value
+
+    # Now compress like a champ.
+    compressed = compressor.compress(data)
+    compressed += compressor.flush(zlib.Z_SYNC_FLUSH)
+
+    return compressed
 
 
 class Frame(object):
