@@ -22,7 +22,7 @@ import sys
 
 version = sys.version_info
 
-if version[0] == 2 or version[1] < 3:
+if version[0] < 3 or version[1] < 3:
     raise ImportError("Minimum Python version is 3.3.")
 
 from .connection import SPDYConnection
