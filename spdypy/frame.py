@@ -270,6 +270,31 @@ class SYNReplyFrame(SYNMixin, Frame):
     def build_data(self, data_buffer, decompressor):
         super(SYNReplyFrame, self).build_data(data_buffer, decompressor, False)
 
+    def to_bytes(self, compressor):
+        """
+        Serialise the SYN_REPLY frame to a bytestream.
+        """
+        version = 0x8000 | self.version
+        flags = 0
+
+        if FLAG_FIN in self.flags:
+            flags = flags | 0x01
+
+        # We need the compressed NV block.
+        nv_block = build_nv_block(compressor, self.headers)
+
+        length = 4 + len(nv_block)
+
+        data = struct.pack("!HHLL",
+                           version,
+                           2,
+                           ((flags << 24) | length),
+                           self.stream_id)
+
+        data += nv_block
+
+        return data
+
 
 class RSTStreamFrame(Frame):
     """
