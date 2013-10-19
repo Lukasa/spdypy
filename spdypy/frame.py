@@ -50,6 +50,9 @@ STREAM_ALREADY_CLOSED = 9
 INVALID_CREDENTIALS   = 10
 FRAME_TOO_LARGE       = 11
 
+# Additional error code for GOAWAY.
+INTERNAL_ERROR = 2
+
 
 # Define our NamedTuple for containing frame settings.
 Settings = namedtuple('Settings', ['id', 'value', 'flags'])
