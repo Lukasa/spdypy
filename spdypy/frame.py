@@ -606,6 +606,12 @@ class DataFrame(Frame):
         if flag_byte & 0x01:
             self.flags.add(FLAG_FIN)
 
+    def build_data(self, data_buffer, *args):
+        """
+        Build the data frame body fields.
+        """
+        self.data = data_buffer
+
 
 # Map frame indicator bytes to frame objects.
 frame_from_type = {

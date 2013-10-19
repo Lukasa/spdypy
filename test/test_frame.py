@@ -517,3 +517,11 @@ class TestDataFrame(object):
         fr.build_flags(0x00)
 
         assert fr.flags == expected
+
+    def test_build_data(self):
+        data = b'\x01\x02\x03\x04\x05'
+
+        fr = DataFrame()
+        fr.build_data(data)
+
+        assert fr.data == data
