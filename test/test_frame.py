@@ -540,3 +540,16 @@ class TestDataFrame(object):
         fr.build_data(data)
 
         assert fr.data == data
+
+    def test_can_serialize(self):
+        data = b'\x01\x02\x03\x04\x05'
+        expected = b'\x7f\xff\xff\xff\x01\x00\x00\x05\x01\x02\x03\x04\x05'
+
+        fr = DataFrame()
+        fr.stream_id = 0x7FFFFFFF
+        fr.flags = set([FLAG_FIN])
+        fr.data = data
+
+        assert fr.to_bytes() == expected
+
+

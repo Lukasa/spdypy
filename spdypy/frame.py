@@ -612,6 +612,23 @@ class DataFrame(Frame):
         """
         self.data = data_buffer
 
+    def to_bytes(self, *args):
+        """
+        Serialize the DATA frame to a bytestream.
+        """
+        flags = 0
+
+        if FLAG_FIN in self.flags:
+            flags |= 0x01
+
+        length = len(self.data)
+
+        data = struct.pack("!LL", self.stream_id, ((flags << 24) | length))
+
+        data += self.data
+
+        return data
+
 
 # Map frame indicator bytes to frame objects.
 frame_from_type = {
