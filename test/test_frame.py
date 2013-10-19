@@ -290,6 +290,17 @@ class TestRSTStreamFrame(object):
         with raises(RuntimeError):
             fr.build_data(data)
 
+    def test_can_serialize(self):
+        data = b'\x80\x03\x00\x03\x00\x00\x00\x08\x7f\xff\xff\xff\x00\x00\x00\x01'
+
+        fr = RSTStreamFrame()
+        fr.version = 3
+        fr.stream_id = 0x7FFFFFFF
+        fr.status_code = 1
+
+        dumped = fr.to_bytes()
+        assert dumped == data
+
 
 class TestSettingsFrame(object):
     def test_build_flags_all_flags(self):

@@ -323,6 +323,22 @@ class RSTStreamFrame(Frame):
 
         return
 
+    def to_bytes(self, *args):
+        """
+        Serialise the RST_STREAM frame to a bytestream.
+        """
+        version = 0x8000 | self.version
+        length = 8
+
+        data = struct.pack("!HHLLL",
+                           version,
+                           3,
+                           length,
+                           self.stream_id,
+                           self.status_code)
+
+        return data
+
 
 class SettingsFrame(Frame):
     """
