@@ -395,6 +395,45 @@ class SettingsFrame(Frame):
 
         return
 
+    def to_bytes(self, *args):
+        """
+        Serialise the SETTINGS frame to a bytestream.
+        """
+        version = 0x8000 | self.version
+        flags = 0
+
+        if FLAG_CLEAR_SETTINGS in self.flags:
+            flags = flags | 0x01
+
+        # Build the array of settings data.
+        body_data = b''
+
+        for setting in self.settings:
+            setting_flags = 0
+
+            if FLAG_SETTINGS_PERSIST_VALUE in setting.flags:
+                setting_flags = setting_flags | 0x01
+            if FLAG_SETTINGS_PERSISTED in setting.flags:
+                setting_flags = setting_flags | 0x02
+
+            sdata = struct.pack("!LL",
+                                ((setting_flags << 24) | setting.id),
+                                setting.value)
+
+            body_data += sdata
+
+        length = 8 + len(body_data)
+
+        data = struct.pack("!HHLL",
+                           version,
+                           4,
+                           (flags << 24) | length,
+                           len(self.settings))
+
+        data += body_data
+
+        return data
+
 
 class PingFrame(Frame):
     """

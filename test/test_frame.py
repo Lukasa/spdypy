@@ -341,6 +341,23 @@ class TestSettingsFrame(object):
         assert fr.settings[1].value == 0x00000000
         assert fr.settings[1].flags == set([FLAG_SETTINGS_PERSISTED])
 
+    def test_can_serialize(self):
+        data = b'\x80\x03\x00\x04\x01\x00\x00\x18\x00\x00\x00\x02\x01\x00\x00\x01\x00\x00\x00\x64\x02\x00\x00\x02\x00\x00\x00\x32'
+
+        fr = SettingsFrame()
+        fr.version = 3
+        fr.flags = set([FLAG_CLEAR_SETTINGS])
+        fr.settings =[]
+        fr.settings.append(Settings(SETTINGS_UPLOAD_BANDWIDTH,
+                                    100,
+                                    set([FLAG_SETTINGS_PERSIST_VALUE])))
+        fr.settings.append(Settings(SETTINGS_DOWNLOAD_BANDWIDTH,
+                                    50,
+                                    set([FLAG_SETTINGS_PERSISTED])))
+
+        dumped = fr.to_bytes()
+        assert dumped == data
+
 
 class TestPingFrame(object):
     def test_build_flags_all_flags(self):
