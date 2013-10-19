@@ -452,6 +452,18 @@ class TestHeaderFrame(object):
 
         assert fr.stream_id == 0x7FFFFFFF
 
+    def test_can_build(self):
+        expected = b'\x80\x03\x00\x08\x01\x00\x00\x1a\x7f\xff\xff\xff\x78\xbb\xe3\xc6\xa7\xc2\x02\xa6\x23\x46\x10\x06\x25\x6c\xc6\x24\x00\x00\x00\x00\xff\xff'
+        compressor = zlib.compressobj(zdict=SPDY_3_ZLIB_DICT)
+        fr = HeadersFrame()
+        fr.version = 3
+        fr.flags = set([FLAG_FIN])
+        fr.stream_id = 0x7FFFFFFF
+        fr.headers = {b'a': b'b'}
+
+        dumped = fr.to_bytes(compressor)
+        assert dumped == expected
+
 
 class TestWindowUpdateFrame(object):
     def test_build_flags_all_flags(self):
