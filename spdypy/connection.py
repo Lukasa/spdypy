@@ -6,6 +6,10 @@ spdypy.connection
 Contains the code necessary for working with SPDY connections.
 """
 import ssl
+import socket
+import select
+from .stream import Stream
+from .frame import from_bytes
 
 
 # Define some states for SPDYConnections.
@@ -27,15 +31,18 @@ class SPDYConnection(object):
         self._state = NEW
         self._context = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
         self._sck = None
+        self._streams = {}
+        self._next_stream_id = 1
+        self._last_stream_id = None
 
         # Set up the initial SSL context.
         self._context.set_default_verify_paths()
         self._context.set_npn_protocols(['http/1.1', 'spdy/3', 'spdy/3.1'])
 
-    def request(self, method, url, body=None, headers={}):
+    def request(self, method, path, body=None, headers={}):
         """
         This will send a request to the server using the HTTP request method
-        ``method`` and the selector ``url``. If the ``body`` argument is
+        ``method`` and the selector ``path``. If the ``body`` argument is
         present, it should be a string or bytes object of data to send after
         the headers are finished. Strings are encoded as ISO-8859-1, the
         default charset for HTTP. To use other encodings, pass a bytes object.
@@ -46,6 +53,100 @@ class SPDYConnection(object):
         """
         pass
 
+    def putrequest(self, request, selector, **kwargs):
+        """
+        This emulates the HTTPConnection ``putrequest()`` method, and allows
+        for sending a SPDY request in stages. Due to the streamed nature of
+        SPDY, this method does not actually send the request in question,
+        but begins the building up of structures necessary to send the request.
+
+        This returns the stream id, for use in the later methods.
+
+        :param request: The request string, e.g. GET.
+        :param selector: The path selector, beginning with a '/'.
+        """
+        self._connect()
+
+        # Begin by allocating a new stream object and giving it the next stream
+        # ID.
+        stream_id = self._next_stream_id
+        stream = Stream(stream_id, version=3)
+        stream.open_stream(7)
+
+        # Give the stream the necessary headers.
+        stream.add_header(b':method', request)
+        stream.add_header(b':path', selector)
+        stream.add_header(b':version', b'HTTP/1.1')
+        stream.add_header(b':host', self.host.encode('utf-8'))
+        stream.add_header(b':scheme', b'https')
+
+        # Increase the next stream ID, keeping it odd.
+        self._next_stream_id += 2
+
+        # Store the stream object.
+        self._streams[stream_id] = stream
+
+        return stream_id
+
+    def putheader(self, header, argument, stream_id=None):
+        """
+        Emulates the HTTPConnection ``putheader()`` method. Because at this
+        point we haven't actually opened a SPDY connection, this continues to
+        add headers to the outstanding SPDY stream.
+
+        :param header: The header key.
+        :param argument: The header value. May be a list of values.
+        :param stream_id: (Optional) The stream to add headers to. If not
+                          provided, the last-created stream is chosen.
+        """
+        stream_id = stream_id if stream_id else max(self._streams.keys())
+        stream = self._streams[stream_id]
+        stream.add_header(header, argument)
+        return
+
+    def endheaders(self, message_body=None, stream_id=None):
+        """
+        Emulates the HTTPConnection ``endheaders`` method. This method defines
+        the point at which we can actually send any SPDY data. The previously
+        defined headers will be sent. If ``message_body`` is provided, a
+        ``Content-Length`` header will automatically be set and the data will
+        be sent as well. Otherwise, only the connection will be set up.
+
+        :param message_body: (Optional) Body data to send. If provided, it is
+                             assumed that no more body data will be sent.
+        :param stream_id: (Optional) The stream to end the headers of. If not
+                          provided, the last-created stream is chosen.
+        """
+        stream_id = stream_id if stream_id else max(self._streams.keys())
+        stream = self._streams[stream_id]
+
+        if message_body is not None:
+            length = len(message_body)
+            stream.add_header(b'content-length', str(length).encode('utf-8'))
+            stream.prepare_data(message_body, last=True)
+
+        stream.send_outstanding(self._sck)
+
+    def _read_outstanding(self):
+        """
+        Reads outstanding data from the socket. For now, for debugging
+        purposes, it returns the data directly to the caller. Later it'll
+        farm out to stream objects.
+        """
+        readable, _, _ = select.select([self._sck], [], [])
+        if not readable:
+            return []
+
+        data = self._sck.read(65535)
+        frames = []
+
+        while data:
+            frame, cons = from_bytes(data)
+            frames.append(frame)
+            data = data[cons:]
+
+        return frames
+
     def _connect(self):
         """
         This method will open a socket connection to the remote server and
@@ -55,3 +156,16 @@ class SPDYConnection(object):
         """
         if self._sck is not None:
             return
+
+        # We have to look up the host. For now, assume port 443.
+        addrs = socket.getaddrinfo(self.host, 443)
+
+        # Later on we'll want to try a number of these, but for now just use
+        # the first.
+        address = addrs[0][4]
+
+        sck = socket.socket()
+        sck = self._context.wrap_socket(sck, server_hostname=self.host)
+        sck.connect(address)
+
+        self._sck = sck
