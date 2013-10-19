@@ -382,6 +382,16 @@ class TestPingFrame(object):
 
         assert fr.ping_id == 1
 
+    def test_can_serialize(self):
+        data = b'\x80\x03\x00\x06\x00\x00\x00\x04\x01\x01\x01\x01'
+
+        fr = PingFrame()
+        fr.version = 3
+        fr.ping_id = 0x01010101
+
+        dumped = fr.to_bytes()
+        assert dumped == data
+
 
 class TestGoAwayFrame(object):
     def test_build_flags_all_flags(self):

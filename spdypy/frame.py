@@ -454,6 +454,22 @@ class PingFrame(Frame):
 
         return
 
+    def to_bytes(self, *args):
+        """
+        Serialise the PING frame to a bytestream.
+        """
+        version = 0x8000 | self.version
+        flags = 0
+        length = 4
+
+        data = struct.pack("!HHLL",
+                           version,
+                           6,
+                           (flags << 24) | length,
+                           self.ping_id)
+
+        return data
+
 
 class GoAwayFrame(Frame):
     """
