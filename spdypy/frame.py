@@ -211,6 +211,11 @@ class SYNMixin(object):
     classes. These classes reflect frames that have identical structures, and
     so will have identical implementations for a number of their methods.
     """
+    def __init__(self):
+        super(SYNMixin, self).__init__()
+
+        self.headers = {}
+
     def build_flags(self, flag_byte):
         """
         Build the flags for this frame from the given byte.
@@ -246,6 +251,12 @@ class SYNStreamFrame(SYNMixin, Frame):
     """
     A single SYN_STREAM frame.
     """
+    def __init__(self):
+        super(SYNStreamFrame, self).__init__()
+
+        self.assoc_stream_id = None
+        self.priority = None
+
     def build_data(self, data_buffer, decompressor):
         super(SYNStreamFrame, self).build_data(data_buffer, decompressor, True)
 
@@ -316,6 +327,11 @@ class RSTStreamFrame(Frame):
     """
     A single RST_STREAM frame.
     """
+    def __init__(self):
+        super(RSTStreamFrame, self).__init__()
+
+        self.status_code = None
+
     def build_flags(self, flag_byte):
         """
         Build the flags for this frame from the given byte.
@@ -360,6 +376,11 @@ class SettingsFrame(Frame):
     """
     A single SETTINGS frame.
     """
+    def __init__(self):
+        super(SettingsFrame, self).__init__()
+
+        self.settings = []
+
     def build_flags(self, flag_byte):
         """
         Build the flags for this frame from the given byte.
@@ -442,6 +463,11 @@ class PingFrame(Frame):
     """
     A single PING frame.
     """
+    def __init__(self):
+        super(PingFrame, self).__init__()
+
+        self.ping_id = None
+
     def build_flags(self, flag_byte):
         """
         Build the flags for this frame from the given byte.
@@ -478,6 +504,12 @@ class GoAwayFrame(Frame):
     """
     A single GOAWAY frame.
     """
+    def __init__(self):
+        super(GoAwayFrame, self).__init__()
+
+        self.last_good_stream_id = None
+        self.status_code = None
+
     def build_flags(self, flag_byte):
         """
         Build the flags for this frame from the given byte.
@@ -517,6 +549,11 @@ class HeadersFrame(Frame):
     """
     A single HEADERS frame.
     """
+    def __init__(self):
+        super(HeadersFrame, self).__init__()
+
+        self.headers = {}
+
     def build_flags(self, flag_byte):
         """
         Build the flags for this frame from the given byte.
@@ -564,6 +601,11 @@ class WindowUpdateFrame(Frame):
     """
     A single WINDOW_UPDATE frame.
     """
+    def __init__(self):
+        super(WindowUpdateFrame, self).__init__()
+
+        self.delta_window_size = None
+
     def build_flags(self, flag_byte):
         """
         Build the flags for this frame from the given byte.
