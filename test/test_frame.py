@@ -280,7 +280,7 @@ class TestRSTStreamFrame(object):
         fr.build_data(data)
 
         assert fr.stream_id == 0x7FFFFFFF
-        assert fr.status_code == 1
+        assert fr.status_code == PROTOCOL_ERROR
 
     def test_build_data_invalid_code(self):
         data = b'\xff\xff\xff\xff\xff\xff\xff\xff'
@@ -296,7 +296,7 @@ class TestRSTStreamFrame(object):
         fr = RSTStreamFrame()
         fr.version = 3
         fr.stream_id = 0x7FFFFFFF
-        fr.status_code = 1
+        fr.status_code = PROTOCOL_ERROR
 
         dumped = fr.to_bytes()
         assert dumped == data
