@@ -499,3 +499,21 @@ class TestWindowUpdateFrame(object):
 
         dumped = fr.to_bytes()
         assert dumped == data
+
+
+class TestDataFrame(object):
+    def test_build_flags_all_flags(self):
+        expected = set([FLAG_FIN])
+
+        fr = DataFrame()
+        fr.build_flags(0xFF)
+
+        assert fr.flags == expected
+
+    def test_build_flags_no_flags(self):
+        expected = set()
+
+        fr = DataFrame()
+        fr.build_flags(0x00)
+
+        assert fr.flags == expected

@@ -598,6 +598,15 @@ class WindowUpdateFrame(Frame):
         return data
 
 
+class DataFrame(Frame):
+    def build_flags(self, flag_byte):
+        """
+        Build the flags for this data frame.
+        """
+        if flag_byte & 0x01:
+            self.flags.add(FLAG_FIN)
+
+
 # Map frame indicator bytes to frame objects.
 frame_from_type = {
     SYN_STREAM: SYNStreamFrame,
