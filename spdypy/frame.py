@@ -580,6 +580,23 @@ class WindowUpdateFrame(Frame):
         self.stream_id = fields[0] & 0x7FFFFFFF
         self.delta_window_size = fields[1] & 0x7FFFFFFF
 
+    def to_bytes(self, *args):
+        """
+        Serialise the WINDOW_UPDATE frame to a bytestream.
+        """
+        version = 0x8000 | self.version
+        flags = 0
+        length = 8
+
+        data = struct.pack("!HHLLL",
+                           version,
+                           9,
+                           (flags << 24) | length,
+                           self.stream_id,
+                           self.delta_window_size)
+
+        return data
+
 
 # Map frame indicator bytes to frame objects.
 frame_from_type = {

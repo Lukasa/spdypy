@@ -488,3 +488,14 @@ class TestWindowUpdateFrame(object):
 
         assert fr.stream_id == 0x7FFFFFFF
         assert fr.delta_window_size == 0x7FFFFFFF
+
+    def test_can_build(self):
+        data = b'\x80\x03\x00\x09\x00\x00\x00\x08\x7f\xff\xff\xff\x7f\xff\xff\xff'
+
+        fr = WindowUpdateFrame()
+        fr.version = 3
+        fr.stream_id = 0x7FFFFFFF
+        fr.delta_window_size = 0x7FFFFFFF
+
+        dumped = fr.to_bytes()
+        assert dumped == data
