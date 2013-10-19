@@ -417,6 +417,17 @@ class TestGoAwayFrame(object):
         assert fr.last_good_stream_id == 0x7FFFFFFF
         assert fr.status_code == 0xFFFFFFFF
 
+    def test_can_serialize(self):
+        data = b'\x80\x03\x00\x07\x00\x00\x00\x08\x7f\xff\xff\xff\x00\x00\x00\x02'
+
+        fr = GoAwayFrame()
+        fr.version = 3
+        fr.last_good_stream_id = 0x7FFFFFFF
+        fr.status_code = INTERNAL_ERROR
+
+        dumped = fr.to_bytes()
+        assert dumped == data
+
 
 class TestHeaderFrame(object):
     def test_build_flags_all_flags(self):

@@ -495,6 +495,23 @@ class GoAwayFrame(Frame):
 
         return
 
+    def to_bytes(self, *args):
+        """
+        Serialise the GOAWAY frame to a bytestream.
+        """
+        version = 0x8000 | self.version
+        flags = 0
+        length = 8
+
+        data = struct.pack("!HHLLL",
+                           version,
+                           7,
+                           (flags << 24) | length,
+                           self.last_good_stream_id,
+                           self.status_code)
+
+        return data
+
 
 class HeadersFrame(Frame):
     """
