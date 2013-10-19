@@ -83,7 +83,7 @@ def from_bytes(buffer, decompressor=None):
     else:
         stream_id = struct.unpack("!L", buffer[0:4])[0] & 0x7FFFFFFF
 
-        frame = Frame()
+        frame = DataFrame()
         frame.stream_id = stream_id
 
     # Let the frame build its flags up.

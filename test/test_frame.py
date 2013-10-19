@@ -160,6 +160,17 @@ class TestFromBytes(object):
         assert fr.stream_id == 0x7FFFFFFF
         assert fr.delta_window_size == 0x7FFFFFFF
 
+    def test_data_frame_good(self):
+        data = b'\x7f\xff\xff\xff\x01\x00\x00\x10\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f'
+        fr, consumed = from_bytes(data)
+
+        assert consumed == len(data)
+        assert isinstance(fr, DataFrame)
+        assert not fr.control
+        assert fr.flags == set([FLAG_FIN])
+        assert fr.stream_id == 0x7FFFFFFF
+        assert fr.data == b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f'
+
 
 class TestNVBlock(object):
     def test_basic_nv_block_parsing(self):
