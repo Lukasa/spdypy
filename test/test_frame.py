@@ -248,10 +248,8 @@ class TestSYNReplyFrame(SYNStreamFrameCommon):
         compressor = zlib.compressobj(zdict=SPDY_3_ZLIB_DICT)
         fr = SYNReplyFrame()
         fr.version = 3
-        fr.flags = set([FLAG_FIN, FLAG_UNIDIRECTIONAL])
+        fr.flags = set([FLAG_FIN])
         fr.stream_id = 0x7FFFFFFF
-        fr.assoc_stream_id = 0x7FFFFFFF
-        fr.priority = 1
         fr.headers = {b'a': b'b'}
 
         dumped = fr.to_bytes(compressor)
