@@ -266,6 +266,8 @@ class SYNStreamFrame(SYNMixin, Frame):
         """
         version = 0x8000 | self.version
         flags = 0
+        assoc_id = (self.assoc_stream_id if self.assoc_stream_id is not None
+                    else 0)
 
         if FLAG_FIN in self.flags:
             flags = flags | 0x01
@@ -282,7 +284,7 @@ class SYNStreamFrame(SYNMixin, Frame):
                            1,
                            ((flags << 24) | length),
                            self.stream_id,
-                           self.assoc_stream_id,
+                           assoc_id,
                            (self.priority << 29))
 
         data += nv_block
