@@ -8,8 +8,10 @@ Contains the code necessary for working with SPDY connections.
 import ssl
 import socket
 import select
+import zlib
 from .stream import Stream
 from .frame import from_bytes
+from .data import SPDY_3_ZLIB_DICT
 
 
 # Define some states for SPDYConnections.
@@ -34,6 +36,8 @@ class SPDYConnection(object):
         self._streams = {}
         self._next_stream_id = 1
         self._last_stream_id = None
+        self._compressor = zlib.compressobj(zdict=SPDY_3_ZLIB_DICT)
+        self._decompressor = zlib.decompressobj(zdict=SPDY_3_ZLIB_DICT)
 
         # Set up the initial SSL context.
         self._context.set_default_verify_paths()
@@ -70,7 +74,10 @@ class SPDYConnection(object):
         # Begin by allocating a new stream object and giving it the next stream
         # ID.
         stream_id = self._next_stream_id
-        stream = Stream(stream_id, version=3)
+        stream = Stream(stream_id,
+                        version=3,
+                        compressor=self._compressor,
+                        decompressor=self._decompressor)
         stream.open_stream(7)
 
         # Give the stream the necessary headers.
@@ -143,7 +150,7 @@ class SPDYConnection(object):
         frames = []
 
         while data:
-            frame, cons = from_bytes(data)
+            frame, cons = from_bytes(data, self._decompressor)
             frames.append(frame)
             data = data[cons:]
 

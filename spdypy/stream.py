@@ -6,9 +6,7 @@ spdypy.stream
 Abstractions for SPDY streams.
 """
 import collections
-import zlib
 from .frame import SYNStreamFrame, DataFrame, FLAG_FIN
-from .data import SPDY_3_ZLIB_DICT
 
 
 class Stream(object):
@@ -23,13 +21,17 @@ class Stream(object):
 
     :param stream_id: The stream_id for this stream.
     :param version: The SPDY version this stream is for.
+    :param compressor: A reference to the zlib compression object for this
+                       connection.
+    :param decompressor: A reference to the zlib decompression object for this
+                         connection.
     """
-    def __init__(self, stream_id, version):
+    def __init__(self, stream_id, version, compressor, decompressor):
         self.stream_id = stream_id
         self.version = version
         self._queued_frames = collections.deque()
-        self._compressor = zlib.compressobj(zdict=SPDY_3_ZLIB_DICT)
-        self._decompressor = zlib.decompressobj(zdict=SPDY_3_ZLIB_DICT)
+        self._compressor = compressor
+        self._decompressor = decompressor
 
     def open_stream(self, priority, associated_stream=None):
         """
