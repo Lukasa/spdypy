@@ -127,13 +127,15 @@ class SPDYConnection(object):
 
         stream.send_outstanding(self._sck)
 
-    def _read_outstanding(self):
+    def _read_outstanding(self, timeout):
         """
         Reads outstanding data from the socket. For now, for debugging
         purposes, it returns the data directly to the caller. Later it'll
         farm out to stream objects.
+
+        :param timeout: The maximum amount of time to wiait for another frame.
         """
-        readable, _, _ = select.select([self._sck], [], [])
+        readable, _, _ = select.select([self._sck], [], [], 0.5)
         if not readable:
             return []
 
