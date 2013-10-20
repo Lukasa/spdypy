@@ -279,13 +279,13 @@ class SYNStreamFrame(SYNMixin, Frame):
 
         length = 10 + len(nv_block)
 
-        data = struct.pack("!HHLLLL",
+        data = struct.pack("!HHLLLH",
                            version,
                            1,
                            ((flags << 24) | length),
                            self.stream_id,
                            assoc_id,
-                           (self.priority << 29))
+                           (self.priority << 13))
 
         data += nv_block
 
