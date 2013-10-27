@@ -18,9 +18,9 @@ conn.putheader(b'accept-encoding', b'gzip,deflate')
 conn.endheaders()
 
 # Debugging output for now.
-frame_list = conn._read_outstanding()
+frame_list = conn._read_outstanding(timeout=0.5)
 while frame_list:
     for frame in frame_list:
         print(frame)
 
-    frame_list = conn._read_outstanding()
+    frame_list = conn._read_outstanding(timeout=0.5)
