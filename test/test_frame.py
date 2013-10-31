@@ -18,6 +18,17 @@ class NullDecompressor(object):
         return data
 
 
+class NullCompressor(object):
+    """
+    Useful compressor that just returns the data put in.
+    """
+    def compress(self, data):
+        return data
+
+    def flush(self, flag):
+        return b''
+
+
 class TestFrame(object):
     def test_can_create_blank_frame(self):
         assert Frame()
