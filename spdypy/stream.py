@@ -79,8 +79,8 @@ class Stream(object):
         frame.stream_id = self.stream_id
 
         # Remove any FLAG_FIN earlier in the queue.
-        for frame in self._queued_frames:
-            frame.flags.discard(FLAG_FIN)
+        for queued_frame in self._queued_frames:
+            queued_frame.flags.discard(FLAG_FIN)
 
         if last:
             frame.flags.add(FLAG_FIN)
