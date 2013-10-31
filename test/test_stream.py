@@ -66,3 +66,19 @@ class TestStream(object):
 
         assert isinstance(frame, DataFrame)
         assert frame.data == b'TestTestTest'
+
+    def test_we_can_correctly_end_a_stream(self):
+        s = Stream(5, 3, None, None)
+        s.open_stream(priority=1)
+
+        # Confirm that FLAG_FIN is set on the first frame.
+        assert FLAG_FIN in s._queued_frames[0].flags
+
+        s.prepare_data(b'TestTestTest', last=True)
+
+        # Confirm that FLAG_FIN is now on the last frame, not the first.
+        frame = s._next_frame()
+        assert FLAG_FIN not in frame.flags
+
+        frame = s._next_frame()
+        assert FLAG_FIN in frame.flags
