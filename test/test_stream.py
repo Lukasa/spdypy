@@ -6,7 +6,7 @@ test/test_stream
 Tests for the SPDY Stream abstraction.
 """
 from spdypy.stream import *
-from spdypy.stream import SYNStreamFrame
+from spdypy.stream import SYNStreamFrame, DataFrame
 
 
 class TestStream(object):
@@ -56,3 +56,14 @@ class TestStream(object):
         frame = s._next_frame()
         expected = {b'Key': b'Value', b'Key2': b'Value2'}
         assert frame.headers == expected
+
+    def test_we_can_add_data(self):
+        s = Stream(5, 3, None, None)
+        s.open_stream(priority=1)
+        s.prepare_data(b'TestTestTest')
+
+        _ = s._next_frame()
+        frame = s._next_frame()
+
+        assert isinstance(frame, DataFrame)
+        assert frame.data == b'TestTestTest'
