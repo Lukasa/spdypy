@@ -7,6 +7,19 @@ Tests for the SPDY Stream abstraction.
 """
 from spdypy.stream import *
 
+class MockConnection(object):
+    """
+    A useful test object that keeps a buffer of data, and a record of how many
+    times it was called.
+    """
+    def __init__(self):
+        self.buffer = b''
+        self.called = 0
+
+    def send(self, data):
+        self.buffer += data
+        self.called += 1
+
 
 class TestStream(object):
     def test_streams_require_stream_ids(self):
