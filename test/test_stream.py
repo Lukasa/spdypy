@@ -46,3 +46,13 @@ class TestStream(object):
 
         frame = s._next_frame()
         assert frame.priority == 1
+
+    def test_open_stream_with_headers(self):
+        s = Stream(5, 3, None, None)
+        s.open_stream(priority=1)
+        s.add_header(b'Key', b'Value')
+        s.add_header(b'Key2', b'Value2')
+
+        frame = s._next_frame()
+        expected = {b'Key': b'Value', b'Key2': b'Value2'}
+        assert frame.headers == expected
