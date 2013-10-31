@@ -6,6 +6,7 @@ test/test_stream
 Tests for the SPDY Stream abstraction.
 """
 from spdypy.stream import *
+from .test_frame import NullCompressor
 
 class MockConnection(object):
     """
@@ -95,3 +96,15 @@ class TestStream(object):
 
         frame = s._next_frame()
         assert FLAG_FIN in frame.flags
+
+    def test_streams_serialize_frame_by_frame(self):
+        s = Stream(5, 3, NullCompressor(), None)
+        conn = MockConnection()
+
+        s.open_stream(priority=1)
+        s.prepare_data(b'TestTestTest', last=True)
+
+        # 'send' the data.
+        s.send_outstanding(conn)
+
+        assert conn.called == 2
