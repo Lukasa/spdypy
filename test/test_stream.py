@@ -6,7 +6,6 @@ test/test_stream
 Tests for the SPDY Stream abstraction.
 """
 from spdypy.stream import *
-from spdypy.stream import SYNStreamFrame, DataFrame
 
 
 class TestStream(object):
