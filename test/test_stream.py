@@ -39,3 +39,10 @@ class TestStream(object):
         frame = s._next_frame()
 
         assert frame.assoc_stream_id == 2
+
+    def test_stream_priority_is_preserved(self):
+        s = Stream(5, 3, None, None)
+        s.open_stream(priority=1)
+
+        frame = s._next_frame()
+        assert frame.priority == 1
