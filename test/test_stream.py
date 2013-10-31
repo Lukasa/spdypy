@@ -29,3 +29,13 @@ class TestStream(object):
         assert frame.headers == {}
 
         assert s._next_frame() is None
+
+    def test_associating_streams(self):
+        s = Stream(5, 3, None, None)
+        assoc = Stream(2, 3, None, None)
+        s.open_stream(priority=1, associated_stream=assoc)
+
+        # Confirm that the first frame has the correct associated stream ID.
+        frame = s._next_frame()
+
+        assert frame.assoc_stream_id == 2
