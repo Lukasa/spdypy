@@ -142,3 +142,15 @@ class TestSPDYConnectionState(object):
 
         assert mock.called == 2
         assert mock.buffer.endswith(b'TestTestTest')
+
+    def test_endheaders_can_specify_a_stream(self):
+        conn = spdypy.SPDYConnection('www.google.com')
+        mock = MockConnection()
+        conn._sck = mock
+        stream_id = conn.putrequest(b'GET', b'/')
+        conn.putrequest(b'POST', b'/post')
+
+        conn.endheaders(stream_id=stream_id)
+
+        assert mock.called == 1
+        assert len(conn._streams[stream_id]._queued_frames) == 0
