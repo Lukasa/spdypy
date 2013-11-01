@@ -156,7 +156,7 @@ class TestSPDYConnectionState(object):
         assert mock.called == 1
         assert len(conn._streams[stream_id]._queued_frames) == 0
 
-    def test_connect_(self):
+    def test_connect(self):
         # We need to stub out a ton of stuff.
         import socket
 
