@@ -108,3 +108,13 @@ class TestStream(object):
         s.send_outstanding(conn)
 
         assert conn.called == 2
+
+    def test_streams_empty_frame_buffer_after_sending(self):
+        s = Stream(5, 3, NullCompressor(), None)
+        conn = MockConnection()
+
+        s.open_stream(priority=1)
+        s.prepare_data(b'TestTestTest', last=True)
+        s.send_outstanding(conn)
+
+        assert len(s._queued_frames) == 0
