@@ -71,7 +71,7 @@ class TestSPDYConnectionState(object):
             b':version': b'HTTP/1.1',
             b':host': b'www.google.com',
             b':scheme': b'https',
-            b'Key': b'Value'
+            b'Key': b'Value',
         }
 
         stream = conn._streams[stream_id]
