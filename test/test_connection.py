@@ -8,6 +8,7 @@ Tests for the SPDYConnection object.
 import spdypy
 import spdypy.connection
 from .test_stream import MockConnection
+from unittest.mock import MagicMock
 
 
 class TestSPDYConnection(object):
@@ -154,3 +155,42 @@ class TestSPDYConnectionState(object):
 
         assert mock.called == 1
         assert len(conn._streams[stream_id]._queued_frames) == 0
+
+    def test_connect_is_a_no_op_for_already_existing_sockets(self):
+        # We need to stub out a ton of stuff.
+        import socket
+
+        # We need a mock socket to give the procedure.
+        mock_sock = MagicMock()
+
+        # getaddrinfo needs to return some controlled data.
+        socket.getaddrinfo = MagicMock(
+            return_value=(('', '', '', '', ('127.0.0.1', 443)),)
+        )
+
+        # The socket constructor should always return our mock.
+        socket.socket = MagicMock(return_value=mock_sock)
+
+        conn = spdypy.SPDYConnection('www.google.com')
+
+        # The SSLContext should be fake too.
+        conn._context = MagicMock()
+        conn._context.wrap_socket = MagicMock(return_value=mock_sock)
+
+        # Ok, call the method.
+        conn._connect()
+
+        # We should have called getaddrinfo.
+        socket.getaddrinfo.assert_called_once_with('www.google.com', 443)
+
+        # We should have gotten one socket.
+        socket.socket.assert_called_once_with()
+
+        # We should have wrapped the socket.
+        conn._context.wrap_socket.assert_called_once_with(
+            mock_sock,
+            server_hostname='www.google.com'
+        )
+
+        # We should then have called connect.
+        mock_sock.connect.assert_called_once_with(('127.0.0.1', 443))
