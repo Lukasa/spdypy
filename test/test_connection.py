@@ -164,11 +164,13 @@ class TestSPDYConnectionState(object):
         mock_sock = MagicMock()
 
         # getaddrinfo needs to return some controlled data.
+        old_addrinfo = socket.getaddrinfo
         socket.getaddrinfo = MagicMock(
             return_value=(('', '', '', '', ('127.0.0.1', 443)),)
         )
 
         # The socket constructor should always return our mock.
+        old_socket = socket.socket
         socket.socket = MagicMock(return_value=mock_sock)
 
         conn = spdypy.SPDYConnection('www.google.com')
@@ -194,3 +196,7 @@ class TestSPDYConnectionState(object):
 
         # We should then have called connect.
         mock_sock.connect.assert_called_once_with(('127.0.0.1', 443))
+
+        # Put the old stuff back.
+        socket.getaddrinfo = old_addrinfo
+        socket.socket = old_socket
