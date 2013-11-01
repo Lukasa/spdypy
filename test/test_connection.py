@@ -12,6 +12,7 @@ import spdypy.connection
 class TestSPDYConnection(object):
     def test_can_create_connection(self):
         conn = spdypy.SPDYConnection(None)
+        assert conn
 
 
 class TestSPDYConnectionState(object):
