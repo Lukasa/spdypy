@@ -77,3 +77,26 @@ class TestSPDYConnectionState(object):
         stream = conn._streams[stream_id]
 
         assert stream._queued_frames[0].headers == headers
+
+    def test_putheader_does_most_recent_stream_by_default(self):
+        conn = spdypy.SPDYConnection('www.google.com')
+        conn._sck = MockConnection()
+        stream_id = conn.putrequest(b'GET', b'/')
+        stream_id2 = conn.putrequest(b'POST', b'/post')
+
+        conn.putheader(b'Key', b'Value')
+
+        headers = {
+            b':method': b'POST',
+            b':path': b'/post',
+            b':version': b'HTTP/1.1',
+            b':host': b'www.google.com',
+            b':scheme': b'https',
+            b'Key': b'Value',
+        }
+
+        first_stream = conn._streams[stream_id]
+        second_stream = conn._streams[stream_id2]
+
+        assert first_stream._queued_frames[0].headers != headers
+        assert second_stream._queued_frames[0].headers == headers
