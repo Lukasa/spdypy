@@ -39,3 +39,22 @@ class TestSPDYConnectionState(object):
         assert len(conn._streams) == 2
         assert second_stream_id == 3
         assert conn._streams[second_stream_id]
+
+    def test_spec_mandatory_headers_are_present(self):
+        conn = spdypy.SPDYConnection('www.google.com')
+        conn._sck = MockConnection()
+        stream_id = conn.putrequest(b'GET', b'/')
+
+        mandatory_headers = {
+            b':method': b'GET',
+            b':path': b'/',
+            b':version': b'HTTP/1.1',
+            b':host': b'www.google.com',
+            b':scheme': b'https'
+        }
+
+        stream = conn._streams[stream_id]
+
+        # We probably need a better way to test this than reaching the whole
+        # way through the stack.
+        assert stream._queued_frames[0].headers == mandatory_headers
