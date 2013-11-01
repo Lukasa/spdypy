@@ -58,3 +58,22 @@ class TestSPDYConnectionState(object):
         # We probably need a better way to test this than reaching the whole
         # way through the stack.
         assert stream._queued_frames[0].headers == mandatory_headers
+
+    def test_putheader_can_add_headers(self):
+        conn = spdypy.SPDYConnection('www.google.com')
+        conn._sck = MockConnection()
+        stream_id = conn.putrequest(b'GET', b'/')
+        conn.putheader(b'Key', b'Value')
+
+        headers = {
+            b':method': b'GET',
+            b':path': b'/',
+            b':version': b'HTTP/1.1',
+            b':host': b'www.google.com',
+            b':scheme': b'https',
+            b'Key': b'Value'
+        }
+
+        stream = conn._streams[stream_id]
+
+        assert stream._queued_frames[0].headers == headers
