@@ -123,3 +123,12 @@ class TestSPDYConnectionState(object):
 
         assert first_stream._queued_frames[0].headers == headers
         assert second_stream._queued_frames[0].headers != headers
+
+    def test_endheaders_sends_outstanding_data(self):
+        conn = spdypy.SPDYConnection('www.google.com')
+        mock = MockConnection()
+        conn._sck = mock
+        conn.putrequest(b'GET', b'/')
+        conn.endheaders()
+
+        assert mock.called == 1
