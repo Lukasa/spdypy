@@ -132,3 +132,13 @@ class TestSPDYConnectionState(object):
         conn.endheaders()
 
         assert mock.called == 1
+
+    def test_endheaders_can_add_data(self):
+        conn = spdypy.SPDYConnection('www.google.com')
+        mock = MockConnection()
+        conn._sck = mock
+        conn.putrequest(b'GET', b'/')
+        conn.endheaders(message_body=b'TestTestTest')
+
+        assert mock.called == 2
+        assert mock.buffer.endswith(b'TestTestTest')
