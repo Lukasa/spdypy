@@ -6,7 +6,9 @@ spdypy.stream
 Abstractions for SPDY streams.
 """
 import collections
-from .frame import SYNStreamFrame, DataFrame, FLAG_FIN
+from .frame import (SYNStreamFrame, SYNReplyFrame, RSTStreamFrame,
+                    SettingsFrame, DataFrame, HeadersFrame, WindowUpdateFrame,
+                    FLAG_FIN)
 
 
 class Stream(object):
@@ -102,6 +104,30 @@ class Stream(object):
             connection.send(data)
 
             frame = self._next_frame()
+
+    def process_frame(self, frame):
+        """
+        Given a SPDY frame, handle it in the context of a given stream. The
+        exact behaviour here is different depending on the type of the frame.
+        We handle the following kindsat the stream level: RST_STREAM, SETTINGS,
+        HEADERS, WINDOW_UPDATE, and Data frames.
+
+        :param frame: The Frame subclass to handle.
+        """
+        if isinstance(frame, SYNReplyFrame):
+            self._process_reply_frame(frame)
+        elif isinstance(frame, RSTStreamFrame):
+            self._process_rst_frame(frame)
+        elif isinstance(frame, SettingsFrame):
+            self._process_settings_frame(frame)
+        elif isinstance(frame, HeadersFrame):
+            self._process_headers_frame(frame)
+        elif isinstance(frame, WindowUpdateFrame):
+            self._process_window_update(frame)
+        elif isinstance(frame, DataFrame):
+            self._handle_data(frame)
+        else:
+            raise ValueError("Unexpected frame kind.")
 
     def _next_frame(self):
         """
