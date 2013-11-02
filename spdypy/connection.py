@@ -140,7 +140,7 @@ class SPDYConnection(object):
         purposes, it returns the data directly to the caller. Later it'll
         farm out to stream objects.
 
-        :param timeout: The maximum amount of time to wiait for another frame.
+        :param timeout: The maximum amount of time to wait for another frame.
         """
         readable, _, _ = select.select([self._sck], [], [], 0.5)
         if not readable:
