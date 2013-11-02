@@ -15,7 +15,7 @@ class Stream(object):
     """
     A SPDY connection is made up of many streams. Each stream communicates by
     sending some nonzero number of frames, beginning with a SYN_STREAM and
-    ending with a RST_STREAM frame.
+    ending with a RST_STREAM frame, or a frame marked with FLAG_FIN.
 
     The stream abstraction provides a system for wrapping HTTP connections in
     frames for sending down SPDY connections. They are a purely internal
