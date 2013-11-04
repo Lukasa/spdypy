@@ -24,8 +24,8 @@ their code. SPDYPy's goal is to make this easy. Take a look:
 Note
 ----
 
-SPDYPy is currently under active development. This means that the API is in
-flux, features may or may not be implemented, and I may go long periods of time
+SPDYPy is currently under active development. This means that features may or
+may not be implemented, and I may go long periods of time
 without making improvements. Using this library in its current state is at your
 own risk: be warned.
 
