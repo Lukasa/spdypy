@@ -60,6 +60,23 @@ class TestSPDYConnectionState(object):
         # way through the stack.
         assert stream._queued_frames[0].headers == mandatory_headers
 
+    def test_putrequest_accepts_strings_as_well_as_bytes(self):
+        conn = spdypy.SPDYConnection('www.google.com')
+        conn._sck = MockConnection()
+        stream_id = conn.putrequest('GET', '/')
+
+        headers = {
+            b':method': b'GET',
+            b':path': b'/',
+            b':version': b'HTTP/1.1',
+            b':host': b'www.google.com',
+            b':scheme': b'https'
+        }
+
+        stream = conn._streams[stream_id]
+
+        assert stream._queued_frames[0].headers == headers
+
     def test_putheader_can_add_headers(self):
         conn = spdypy.SPDYConnection('www.google.com')
         conn._sck = MockConnection()
@@ -124,6 +141,25 @@ class TestSPDYConnectionState(object):
 
         assert first_stream._queued_frames[0].headers == headers
         assert second_stream._queued_frames[0].headers != headers
+
+    def test_putheader_can_put_strings_as_well_as_bytes(self):
+        conn = spdypy.SPDYConnection('www.google.com')
+        conn._sck = MockConnection()
+        stream_id = conn.putrequest('GET', '/')
+        conn.putheader('Key', 'Value')
+
+        headers = {
+            b':method': b'GET',
+            b':path': b'/',
+            b':version': b'HTTP/1.1',
+            b':host': b'www.google.com',
+            b':scheme': b'https',
+            b'Key': b'Value',
+        }
+
+        stream = conn._streams[stream_id]
+
+        assert stream._queued_frames[0].headers == headers
 
     def test_endheaders_sends_outstanding_data(self):
         conn = spdypy.SPDYConnection('www.google.com')

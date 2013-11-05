@@ -71,6 +71,11 @@ class SPDYConnection(object):
         """
         self._connect()
 
+        # Convert the request string and selector to bytes, if they aren't
+        # already.
+        request = request if isinstance(request, bytes) else request.encode('utf-8')
+        selector = selector if isinstance(selector, bytes) else selector.encode('utf-8')
+
         # Begin by allocating a new stream object and giving it the next stream
         # ID.
         stream_id = self._next_stream_id
@@ -106,6 +111,10 @@ class SPDYConnection(object):
         :param stream_id: (Optional) The stream to add headers to. If not
                           provided, the last-created stream is chosen.
         """
+        # Convert the header and argument to bytes if they aren't already.
+        header = header if isinstance(header, bytes) else header.encode('utf-8')
+        argument = argument if isinstance(argument, bytes) else argument.encode('utf-8')
+
         stream_id = stream_id if stream_id else max(self._streams.keys())
         stream = self._streams[stream_id]
         stream.add_header(header, argument)
