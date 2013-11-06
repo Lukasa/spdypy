@@ -11,10 +11,10 @@ sys.path.append('.')
 import spdypy
 
 conn = spdypy.SPDYConnection('www.google.com')
-conn.putrequest(b'GET', b'/')
-conn.putheader(b'user-agent', b'spdypy')
-conn.putheader(b'accept', b'*/*')
-conn.putheader(b'accept-encoding', b'gzip,deflate')
+conn.putrequest('GET', '/')
+conn.putheader('user-agent', 'spdypy')
+conn.putheader('accept', '*/*')
+conn.putheader('accept-encoding', 'gzip,deflate')
 conn.endheaders()
 
 # Debugging output for now.
