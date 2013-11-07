@@ -110,7 +110,7 @@ class Stream(object):
         Given a SPDY frame, handle it in the context of a given stream. The
         exact behaviour here is different depending on the type of the frame.
         We handle the following kinds at the stream level: RST_STREAM,
-        SETTINGS, HEADERS, WINDOW_UPDATE, and Data frames.
+        HEADERS, WINDOW_UPDATE, and Data frames.
 
         :param frame: The Frame subclass to handle.
         """
@@ -118,8 +118,6 @@ class Stream(object):
             self._process_reply_frame(frame)
         elif isinstance(frame, RSTStreamFrame):
             self._process_rst_frame(frame)
-        elif isinstance(frame, SettingsFrame):
-            self._process_settings_frame(frame)
         elif isinstance(frame, HeadersFrame):
             self._process_headers_frame(frame)
         elif isinstance(frame, WindowUpdateFrame):
