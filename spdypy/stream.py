@@ -109,8 +109,8 @@ class Stream(object):
         """
         Given a SPDY frame, handle it in the context of a given stream. The
         exact behaviour here is different depending on the type of the frame.
-        We handle the following kindsat the stream level: RST_STREAM, SETTINGS,
-        HEADERS, WINDOW_UPDATE, and Data frames.
+        We handle the following kinds at the stream level: RST_STREAM,
+        SETTINGS, HEADERS, WINDOW_UPDATE, and Data frames.
 
         :param frame: The Frame subclass to handle.
         """
