@@ -7,8 +7,7 @@ Abstractions for SPDY streams.
 """
 import collections
 from .frame import (SYNStreamFrame, SYNReplyFrame, RSTStreamFrame,
-                    SettingsFrame, DataFrame, HeadersFrame, WindowUpdateFrame,
-                    FLAG_FIN)
+                    DataFrame, HeadersFrame, WindowUpdateFrame, FLAG_FIN)
 
 
 class Stream(object):
